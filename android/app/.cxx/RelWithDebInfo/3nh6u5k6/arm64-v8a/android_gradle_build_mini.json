@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/venpep/Documents/Flutter_Development/flutter_3.29.0/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/venpep/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/venpep/Downloads/sample/android/app/.cxx/RelWithDebInfo/3nh6u5k6/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/venpep/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/venpep/Downloads/sample/android/app/.cxx/RelWithDebInfo/3nh6u5k6/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

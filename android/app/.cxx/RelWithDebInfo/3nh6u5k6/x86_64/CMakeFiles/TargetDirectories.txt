@@ -1,0 +1,2 @@
+/Users/venpep/Downloads/sample/android/app/.cxx/RelWithDebInfo/3nh6u5k6/x86_64/CMakeFiles/edit_cache.dir
+/Users/venpep/Downloads/sample/android/app/.cxx/RelWithDebInfo/3nh6u5k6/x86_64/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,48 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace = "com.sec.opsapp"
+    compileSdk = 36 // ✅ Flutter 3.29.0 recommends SDK 34 (36 is experimental)
+    ndkVersion = "26.1.10909125"
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    // ✅ Define version values manually or pull from pubspec.yaml
+    def flutterVersionCode = project.hasProperty('flutterVersionCode') ? project.flutterVersionCode.toInteger() : 1
+    def flutterVersionName = project.hasProperty('flutterVersionName') ? project.flutterVersionName : "1.0.0"
+
+    defaultConfig {
+        applicationId = "com.sec.opsapp"
+        minSdk = 24
+        targetSdk = 36
+
+        versionCode = flutterVersionCode
+        versionName = flutterVersionName
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+}
+
+flutter {
+    source = "../.."
+}
