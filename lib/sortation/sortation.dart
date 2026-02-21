@@ -106,8 +106,21 @@ class _SortationScreenState extends State<SortationScreen> {
           });
         }
       } else {
-        Get.snackbar(
-            "Error", "Failed to fetch containers: ${response.statusText}", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        if (mounted) {
+          String errorMessage = "Failed to add package: ${response.statusText}";
+          if (response.body != null) {
+            try {
+              if (response.body is List && response.body.isNotEmpty) {
+                errorMessage = response.body[0]['message'] ?? errorMessage;
+              } else if (response.body is Map) {
+                errorMessage = response.body['message'] ?? errorMessage;
+              }
+            } catch (e) {
+              print("Error parsing addResponse body: $e");
+            }
+          }
+          Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        }
       }
     } catch (e) {
       print(e);
@@ -124,8 +137,8 @@ class _SortationScreenState extends State<SortationScreen> {
 
   Future<void> _searchContainer(String number) async {
     try {
-      DateTime fromDate = DateTime(2020, 1, 16, 7, 25, 0);
-      DateTime toDate = DateTime.now();
+      DateTime fromDate = DateTime.now().subtract(const Duration(days: 4));
+      DateTime toDate = DateTime.now().add(const Duration(days: 1));
 
       Response response = await _sortationRepo.getOpenContainer(
           number, "BAG", fromDate, toDate);
@@ -179,7 +192,19 @@ class _SortationScreenState extends State<SortationScreen> {
           });
         }
       } else {
-        Get.snackbar("Error", "Container not found: ${response.statusText}", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        String errorMessage = "Failed to add package: ${response.statusText}";
+        if (response.body != null) {
+          try {
+            if (response.body is List && response.body.isNotEmpty) {
+              errorMessage = response.body[0]['message'] ?? errorMessage;
+            } else if (response.body is Map) {
+              errorMessage = response.body['message'] ?? errorMessage;
+            }
+          } catch (e) {
+            print("Error parsing addResponse body: $e");
+          }
+        }
+        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       }
     } catch (e) {
       print(e);

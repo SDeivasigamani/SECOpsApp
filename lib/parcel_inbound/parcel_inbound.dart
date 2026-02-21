@@ -18,6 +18,7 @@ class ParcelInboundScreen extends StatefulWidget {
 
 class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
   final TextEditingController _scanController = TextEditingController();
+  bool _isValidating = false;
 
 
   DateTime _toDate = DateTime(
@@ -84,8 +85,8 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isFrom ? _fromDate : _toDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2035),
+      firstDate: isFrom ? DateTime(2020) : _fromDate,
+      lastDate: isFrom ? _toDate : DateTime(2035),
     );
     if (picked != null) {
       setState(() {
@@ -99,31 +100,45 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
   }
 
   Future<void> _validateParcels() async {
-    String parcelNumber = _scanController.text.trim();
-    
-    // Validate parcel number length
-    if (parcelNumber.length < 5) {
-      Get.snackbar("Error", "Tracking Numbers must be between 5 and 50 characters long.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
-      return;
+    if (_isValidating) return;
+
+    setState(() {
+      _isValidating = true;
+    });
+
+    try {
+      String parcelNumber = _scanController.text.trim();
+
+      // Validate parcel number length
+      if (parcelNumber.length < 5) {
+        Get.snackbar("Error", "Tracking Numbers must be between 5 and 50 characters long.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        return;
+      }
+
+      if(Get.find<AuthController>().condition == "OK") {
+        await Get.find<AuthController>().validateParcel(parcelNumber, _toDate, _fromDate, "02.04.002.1.002.999");
+
+      } else {
+        await Get.find<AuthController>().getReasonList();
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SelectReasonScreen(
+              parcelNumber: parcelNumber,
+              fromDate: _fromDate,
+              toDate: _toDate,
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isValidating = false;
+        });
+      }
     }
-
-   if(Get.find<AuthController>().condition == "OK") {
-     Get.find<AuthController>().validateParcel(parcelNumber, _toDate, _fromDate, "02.04.002.1.002.999");
-
-   } else {
-     await Get.find<AuthController>().getReasonList();
-
-     Navigator.push(
-       context,
-       MaterialPageRoute(
-         builder: (context) => SelectReasonScreen(
-           parcelNumber: parcelNumber,
-           fromDate: _fromDate,
-           toDate: _toDate,
-         ),
-       ),
-     );
-   }
   }
 
   _submitParcels(BuildContext context) {
@@ -390,7 +405,7 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          "Parcel Received OK",
+                          "Parcel Received \n OK",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
@@ -425,7 +440,7 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          "Parcel Received HOLD",
+                          "Parcel Received \n HOLD",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,

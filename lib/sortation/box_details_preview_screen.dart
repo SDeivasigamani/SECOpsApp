@@ -424,7 +424,21 @@ class _BoxDetailsPreviewScreenState extends State<BoxDetailsPreviewScreen> {
               (route) => route.settings.name == RouteHelper.getUsersHome());
         }
       } else {
-        Get.snackbar("Error", "Failed to close container: ${response.statusText}", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        if (mounted) {
+          String errorMessage = "Failed to add package: ${response.statusText}";
+          if (response.body != null) {
+            try {
+              if (response.body is List && response.body.isNotEmpty) {
+                errorMessage = response.body[0]['message'] ?? errorMessage;
+              } else if (response.body is Map) {
+                errorMessage = response.body['message'] ?? errorMessage;
+              }
+            } catch (e) {
+              print("Error parsing addResponse body: $e");
+            }
+          }
+          Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        }
       }
     } catch (e) {
       print(e);

@@ -323,8 +323,8 @@ class _GenerateTripScreenState extends State<GenerateTripScreen> {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initial,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2035),
+      firstDate: isFrom ? DateTime(2020) : controller.fromDate,
+      lastDate: isFrom ? controller.toDate : DateTime(2035),
     );
     if (picked != null) {
       if (isFrom) {
