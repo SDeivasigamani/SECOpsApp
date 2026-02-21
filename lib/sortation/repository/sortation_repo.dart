@@ -37,8 +37,8 @@ class SortationRepo {
   Future<Response> getOpenContainer(String number, String type, DateTime from, DateTime to) async {
     return await apiClient.postData(AppConstants.getOpenContainerUrl, {
       "createdOn": {
-        "from": from.toIso8601String(),
-        "to": to.toIso8601String()
+        "from": from.toUtc().toIso8601String(),
+        "to": to.toUtc().toIso8601String()
       },
       "number": number,
       "type": type

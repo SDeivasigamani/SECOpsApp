@@ -41,8 +41,8 @@ class _PackageListScreenState extends State<PackageListScreen> {
     });
 
     try {
-      DateTime fromDate = DateTime(2020, 1, 16, 7, 25, 0);
-      DateTime toDate = DateTime.now();
+      DateTime fromDate = DateTime.now().subtract(const Duration(days: 30));
+      DateTime toDate = DateTime.now().add(const Duration(days: 1));
 
       Response response = await _sortationRepo.getOpenContainer(
         widget.containerNumber,
@@ -57,7 +57,19 @@ class _PackageListScreenState extends State<PackageListScreen> {
           _filteredParcels = _containerDetail?.parcels ?? [];
         });
       } else {
-        Get.snackbar("Error", "Failed to fetch container details: ${response.statusText}");
+        String errorMessage = "Failed to add package: ${response.statusText}";
+        if (response.body != null) {
+          try {
+            if (response.body is List && response.body.isNotEmpty) {
+              errorMessage = response.body[0]['message'] ?? errorMessage;
+            } else if (response.body is Map) {
+              errorMessage = response.body['message'] ?? errorMessage;
+            }
+          } catch (e) {
+            print("Error parsing addResponse body: $e");
+          }
+        }
+        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       }
     } catch (e) {
       print(e);
@@ -349,14 +361,22 @@ class _PackageListScreenState extends State<PackageListScreen> {
                                       setState(() {
                                         _isLoading = false;
                                       });
-                                      
-                                      Get.snackbar(
-                                        "Error",
-                                        "Failed to delete package: ${response.statusText}",
-                                        backgroundColor: Colors.red,
-                                        colorText: Colors.white,
-                                        snackPosition: SnackPosition.TOP,
-                                      );
+
+                                      if (mounted) {
+                                        String errorMessage = "Failed to add package: ${response.statusText}";
+                                        if (response.body != null) {
+                                          try {
+                                            if (response.body is List && response.body.isNotEmpty) {
+                                              errorMessage = response.body[0]['message'] ?? errorMessage;
+                                            } else if (response.body is Map) {
+                                              errorMessage = response.body['message'] ?? errorMessage;
+                                            }
+                                          } catch (e) {
+                                            print("Error parsing addResponse body: $e");
+                                          }
+                                        }
+                                        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+                                      }
                                     }
                                   } catch (e) {
                                     setState(() {

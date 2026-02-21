@@ -119,13 +119,17 @@ class GenerateTripController extends GetxController {
         Get.to(() => const GenerateTripResultsScreen());
         Get.snackbar("Success", "Search successful", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       } else {
-        String errorMessage = response?.bodyString ?? "Search failed";
-        try {
-          if (response?.body is Map && response!.body.containsKey("message")) {
-            errorMessage = response.body["message"];
+        String errorMessage = "Container not found: ${response?.statusText}";
+        if (response?.body != null) {
+          try {
+            if (response?.body is List && response?.body.isNotEmpty) {
+              errorMessage = response?.body[0]['message'] ?? errorMessage;
+            } else if (response?.body is Map) {
+              errorMessage = response?.body['message'] ?? errorMessage;
+            }
+          } catch (e) {
+            print("Error parsing searchResponse body: $e");
           }
-        } catch (e) {
-          print("Error parsing error message: $e");
         }
         Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       }

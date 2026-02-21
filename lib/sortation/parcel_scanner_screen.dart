@@ -57,8 +57,9 @@ class _ParcelScannerPageState extends State<ParcelScannerPage> {
 
   Future<void> _searchContainer(String number) async {
     try {
-      DateTime fromDate = DateTime(2020, 1, 16, 7, 25, 0);
-      DateTime toDate = DateTime.now();
+      DateTime fromDate = DateTime.now().subtract(const Duration(days: 30));
+      DateTime toDate = DateTime.now().add(const Duration(days: 1));
+
 
       Response response = await _sortationRepo.getOpenContainer(
           number, "BAG", fromDate, toDate);
@@ -68,7 +69,19 @@ class _ParcelScannerPageState extends State<ParcelScannerPage> {
             ContainerDetailModel.fromJson(response.body);
         _showContainerDetailBottomSheet(containerDetail);
       } else {
-        Get.snackbar("Error", "Container not found: ${response.statusText}", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        String errorMessage = "Failed to add package: ${response.statusText}";
+        if (response.body != null) {
+          try {
+            if (response.body is List && response.body.isNotEmpty) {
+              errorMessage = response.body[0]['message'] ?? errorMessage;
+            } else if (response.body is Map) {
+              errorMessage = response.body['message'] ?? errorMessage;
+            }
+          } catch (e) {
+            print("Error parsing addResponse body: $e");
+          }
+        }
+        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       }
     } catch (e) {
       print(e);
@@ -456,6 +469,7 @@ class _ScannerBottomSheetState extends State<ScannerBottomSheet> {
   );
   DateTime _fromDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
       .subtract(const Duration(days: 30));
+
   String _selectedFilter = "Past 1 month";
   bool _isCustomDate = false;
 
@@ -534,8 +548,8 @@ class _ScannerBottomSheetState extends State<ScannerBottomSheet> {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initial,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2035),
+      firstDate: isFrom ? DateTime(2020) : _fromDate,
+      lastDate: isFrom ? _toDate : DateTime(2035),
     );
     if (picked != null) {
       setState(() {

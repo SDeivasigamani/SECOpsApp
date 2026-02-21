@@ -115,8 +115,8 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isFrom ? _fromDate : _toDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2035),
+      firstDate: isFrom ? DateTime(2020) : _fromDate,
+      lastDate: isFrom ? _toDate : DateTime(2035),
     );
     if (picked != null) {
       setState(() {
@@ -157,7 +157,19 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
       } else {
         print("Failed to fetch container details: ${response.statusText}");
         if (mounted) {
-          Get.snackbar("Warning", "Could not refresh package count", backgroundColor: Colors.orange);
+          String errorMessage = "Failed to add package: ${response.statusText}";
+          if (response.body != null) {
+            try {
+              if (response.body is List && response.body.isNotEmpty) {
+                errorMessage = response.body[0]['message'] ?? errorMessage;
+              } else if (response.body is Map) {
+                errorMessage = response.body['message'] ?? errorMessage;
+              }
+            } catch (e) {
+              print("Error parsing addResponse body: $e");
+            }
+          }
+          Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
         }
       }
     } catch (e) {
@@ -201,7 +213,6 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
       );
 
       if (searchResponse.statusCode == 200) {
-        // Step 2: Add to container
         Response addResponse = await _sortationRepo.addToContainer(
           [trackingNumber],
           widget.containerTrackingNumber,
@@ -229,10 +240,34 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
             snackPosition: SnackPosition.TOP,
           );
         } else {
-          Get.snackbar("Error", "Failed to add package: ${addResponse.statusText}", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          String errorMessage = "Failed to add package: ${addResponse.statusText}";
+          if (addResponse.body != null) {
+            try {
+              if (addResponse.body is List && addResponse.body.isNotEmpty) {
+                errorMessage = addResponse.body[0]['message'] ?? errorMessage;
+              } else if (addResponse.body is Map) {
+                errorMessage = addResponse.body['message'] ?? errorMessage;
+              }
+            } catch (e) {
+              print("Error parsing addResponse body: $e");
+            }
+          }
+          Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
         }
       } else {
-        Get.snackbar("Error", "Package not found: ${searchResponse.statusText}", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        String errorMessage = "Package not found: ${searchResponse.statusText}";
+        if (searchResponse.body != null) {
+          try {
+            if (searchResponse.body is List && searchResponse.body.isNotEmpty) {
+              errorMessage = searchResponse.body[0]['message'] ?? errorMessage;
+            } else if (searchResponse.body is Map) {
+              errorMessage = searchResponse.body['message'] ?? errorMessage;
+            }
+          } catch (e) {
+            print("Error parsing searchResponse body: $e");
+          }
+        }
+        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       }
     } catch (e) {
       print(e);

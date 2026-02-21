@@ -78,8 +78,8 @@ class _SearchParcelScreenState extends State<SearchParcelScreen> {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isFrom ? _fromDate : _toDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2035),
+      firstDate: isFrom ? DateTime(2020) : _fromDate,
+      lastDate: isFrom ? _toDate : DateTime(2035),
     );
     if (picked != null) {
       setState(() {

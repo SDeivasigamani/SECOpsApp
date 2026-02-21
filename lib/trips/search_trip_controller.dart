@@ -53,7 +53,7 @@ class SearchTripController extends GetxController {
         
         // Navigate to results screen
         Get.to(() => const SearchTripResultsScreen());
-        Get.snackbar("Success", "Trip found", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        // Get.snackbar("Success", "Trip found", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       } else {
         // For testing mock data, navigate anyway
         // print("Trip search failed or empty, navigating to mock results");
@@ -63,13 +63,17 @@ class SearchTripController extends GetxController {
         
 
         // Original error handling
-        String errorMessage = response?.bodyString ?? "Trip not found";
-        try {
-          if (response?.body is Map && response!.body.containsKey("message")) {
-            errorMessage = response.body["message"];
+        String errorMessage = "Container not found: ${response?.statusText}";
+        if (response?.body != null) {
+          try {
+            if (response?.body is List && response?.body.isNotEmpty) {
+              errorMessage = response?.body[0]['message'] ?? errorMessage;
+            } else if (response?.body is Map) {
+              errorMessage = response?.body['message'] ?? errorMessage;
+            }
+          } catch (e) {
+            print("Error parsing searchResponse body: $e");
           }
-        } catch (e) {
-          print("Error parsing error message: $e");
         }
         Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
 
