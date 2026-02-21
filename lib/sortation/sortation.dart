@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:opsapp/sortation/parcel_scanner_screen.dart';
-import 'package:opsapp/sortation/add_package_screen.dart';
 import 'package:opsapp/search_parcel/barcode_scan_screen.dart';
 
-import '../widgets/custom_snackbar.dart';
 import 'create_box_screen.dart';
 import 'update_box_screen.dart';
 

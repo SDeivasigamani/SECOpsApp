@@ -6,7 +6,6 @@ import 'package:opsapp/search_parcel/barcode_scan_screen.dart';
 import 'package:opsapp/sortation/repository/sortation_repo.dart';
 import 'package:opsapp/utils/client_api.dart';
 import '../login/auth_controller.dart';
-import '../widgets/custom_snackbar.dart';
 
 class UpdateBoxScreen extends StatefulWidget {
   final Matches container;

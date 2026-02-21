@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'search_trip_repo.dart';
 import 'trip_results_model.dart';
-import '../widgets/custom_snackbar.dart';
 import 'search_trip_results_screen.dart';
 
 class SearchTripController extends GetxController {

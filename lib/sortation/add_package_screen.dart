@@ -5,7 +5,6 @@ import 'package:opsapp/sortation/repository/sortation_repo.dart';
 import 'package:opsapp/utils/client_api.dart';
 import 'package:opsapp/sortation/package_list_screen.dart';
 import 'package:opsapp/sortation/model/container_detail_model.dart';
-import '../widgets/custom_snackbar.dart';
 
 class AddPackageScreen extends StatefulWidget {
   final String containerTrackingNumber;

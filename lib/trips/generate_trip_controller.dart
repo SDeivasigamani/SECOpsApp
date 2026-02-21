@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opsapp/trips/generate_trip_repo.dart';
 import '../utils/api_checker.dart';
-import '../widgets/custom_snackbar.dart';
 import '../destination_handling/destination_handling_model.dart';
 import 'generate_trip_results_screen.dart';
 import 'generate_trip_confirm_screen.dart';

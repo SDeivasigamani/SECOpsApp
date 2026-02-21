@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:opsapp/utils/images.dart';
 import 'destination_handling_controller.dart';
 
 class DestinationHandlingSearchScreen extends StatelessWidget {

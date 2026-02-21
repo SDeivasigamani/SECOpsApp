@@ -3,7 +3,6 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'generate_trip_controller.dart';
-import 'generate_trip_results_screen.dart';
 
 class GenerateTripScreen extends StatefulWidget {
   const GenerateTripScreen({Key? key}) : super(key: key);
