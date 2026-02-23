@@ -6,7 +6,6 @@ import 'package:opsapp/sortation/repository/sortation_repo.dart';
 import 'package:opsapp/utils/client_api.dart';
 import 'package:opsapp/sortation/model/container_detail_model.dart';
 import 'package:opsapp/sortation/add_package_screen.dart';
-import 'package:opsapp/widgets/custom_snackbar.dart';
 
 class ParcelScannerPage extends StatefulWidget {
   const ParcelScannerPage({Key? key}) : super(key: key);

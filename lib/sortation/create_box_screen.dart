@@ -7,7 +7,6 @@ import 'package:opsapp/utils/client_api.dart';
 import 'package:opsapp/login/auth_controller.dart';
 import 'package:opsapp/search_parcel/barcode_scan_screen.dart';
 
-import '../widgets/custom_snackbar.dart';
 
 class CreateBoxScreen extends StatefulWidget {
   const CreateBoxScreen({super.key});

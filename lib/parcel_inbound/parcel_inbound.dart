@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:intl/intl.dart';
 import 'package:opsapp/parcel_inbound/select_reason.dart';
 
 import '../login/auth_controller.dart';
 import '../search_parcel/barcode_scan_screen.dart';
-import '../widgets/custom_snackbar.dart';
 
 class ParcelInboundScreen extends StatefulWidget {
   const ParcelInboundScreen({super.key});

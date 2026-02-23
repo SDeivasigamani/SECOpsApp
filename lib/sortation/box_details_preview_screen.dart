@@ -5,7 +5,6 @@ import 'package:opsapp/sortation/repository/sortation_repo.dart';
 import 'package:opsapp/utils/client_api.dart';
 import 'package:opsapp/utils/route_helper.dart';
 
-import '../widgets/custom_snackbar.dart';
 
 class BoxDetailsPreviewScreen extends StatefulWidget {
   final ContainerDetailModel containerDetail;
