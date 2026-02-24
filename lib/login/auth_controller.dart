@@ -143,12 +143,14 @@ class AuthController extends GetxController implements GetxService {
           entityConfigurations[code] = {
             "weightUnit": defaults["weightUnit"]?.toString() ?? "kg",
             "dimensionUnit": defaults["dimensionUnit"]?.toString() ?? "cm",
+            "defaultAccountNumber": defaults["defaultAccountNumber"]?.toString() ?? "001",
           };
         } else {
            // Default fallback
            entityConfigurations[code] = {
             "weightUnit": "kg",
             "dimensionUnit": "cm",
+            "defaultAccountNumber": "001",
           };
         }
         hasConfigUpdates = true;

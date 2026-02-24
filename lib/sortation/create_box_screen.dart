@@ -6,6 +6,7 @@ import 'package:opsapp/sortation/repository/sortation_repo.dart';
 import 'package:opsapp/utils/client_api.dart';
 import 'package:opsapp/login/auth_controller.dart';
 import 'package:opsapp/search_parcel/barcode_scan_screen.dart';
+import 'package:opsapp/sortation/model/address_book_model.dart';
 
 
 class CreateBoxScreen extends StatefulWidget {
@@ -23,7 +24,8 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
   final TextEditingController heightController = TextEditingController();
 
   String? selectedEntity;
-  String? selectedDestination;
+  Matches? selectedConsignee;
+  Matches? selectedShipper;
   String? selectedSortationRule;
   
   late SortationRepo _sortationRepo;
@@ -67,7 +69,7 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
     }
     
     // Default fallback
-    return {"weightUnit": "kg", "dimensionUnit": "cm"};
+    return {"weightUnit": "kg", "dimensionUnit": "cm", "defaultAccountNumber": "001"};
   }
 
   @override
@@ -206,8 +208,13 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
 
             const SizedBox(height: 20),
 
-            // Destination - big text box
-            _destinationBox(),
+            // Destination (Consignee)
+            _consigneeBox(),
+
+            const SizedBox(height: 15),
+
+            // Shipper select
+            _shipperBox(),
 
             const SizedBox(height: 15),
 
@@ -225,7 +232,7 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
 
   // ---------- UI COMPONENTS ----------
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(String label, TextEditingController controller, {bool isNumeric = true}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -240,7 +247,7 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
           ),
           child: TextField(
             controller: controller,
-            keyboardType: TextInputType.number,
+            keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
             decoration: const InputDecoration(
               border: InputBorder.none,
             ),
@@ -302,42 +309,76 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
   }
 
 
-  Widget _destinationBox() {
-    return GestureDetector(
+  Widget _consigneeBox() {
+    return _addressSelectBox(
+      label: "Consignee",
+      hint: "Select Consignee",
+      selected: selectedConsignee,
       onTap: () async {
         final result = await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => const SelectAddressScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => const SelectAddressScreen()),
         );
-
-        if (result != null) {
-          setState(() {
-            selectedDestination = result;   // <-- Update UI
-          });
+        if (result != null && result is Matches) {
+          setState(() => selectedConsignee = result);
         }
       },
+    );
+  }
+
+  Widget _shipperBox() {
+    return _addressSelectBox(
+      label: "Shipper",
+      hint: "Select Shipper",
+      selected: selectedShipper,
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SelectAddressScreen()),
+        );
+        if (result != null && result is Matches) {
+          setState(() => selectedShipper = result);
+        }
+      },
+    );
+  }
+
+  Widget _addressSelectBox({
+    required String label,
+    required String hint,
+    required Matches? selected,
+    required VoidCallback onTap,
+  }) {
+    String displayText = hint;
+    if (selected != null && selected.details != null) {
+      final d = selected.details!;
+      displayText = [
+        d.name ?? "",
+        d.address?.street?.join(", ") ?? "",
+        "${d.address?.city ?? ""}, ${d.address?.state ?? ""}",
+        "${d.address?.country ?? ""} - ${d.address?.postCode ?? ""}",
+      ].where((s) => s.isNotEmpty && s != ", " && s != " - ").join("\n");
+    }
+
+    return GestureDetector(
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Destination",
-            style: TextStyle(fontSize: 14, color: Colors.black54),
-          ),
+          Text(label, style: const TextStyle(fontSize: 14, color: Colors.black54)),
           const SizedBox(height: 5),
           Container(
             width: double.infinity,
-            height: 140,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              selectedDestination ?? "Select Destination",
+              displayText,
               style: TextStyle(
-                color: selectedDestination != null ? Colors.black : Colors.black54,
+                color: selected != null ? Colors.black : Colors.black54,
+                height: 1.5,
               ),
             ),
           ),
@@ -456,56 +497,59 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
       double width = double.tryParse(widthController.text) ?? 30;
       double height = double.tryParse(heightController.text) ?? 40;
 
-      // Prepare consignee data (from selected destination or default)
-      Map<String, dynamic> consignee = {
-        "name": selectedDestination ?? "Container by mobile app",
-        "phones": ["1234567890"],
-        "emails": ["info@shipacommerce.com"],
-        "address": {
-          "country": "US",
-          "city": "New York",
-          "state": "New York",
-          "street": ["Bakerstreet"],
-          "post_code": "AB12345"
-        },
-        "location": {
-          "longitude": -77.0364,
-          "latitude": 38.8951
+      // Function to map Matches to Map<String, dynamic>
+      Map<String, dynamic> mapAddress(Matches? match, String defaultName) {
+        if (match == null || match.details == null) {
+          return {
+            "name": defaultName,
+            "phones": ["0000000000"],
+            "emails": ["info@shipacommerce.com"],
+            "address": {
+              "country": "AE",
+              "city": "Dubai",
+              "state": "Dubai",
+              "street": ["-"],
+              "post_code": "00000"
+            },
+            "location": {"longitude": 0.0, "latitude": 0.0}
+          };
         }
-      };
+        final d = match.details!;
+        return {
+          "name": d.name ?? defaultName,
+          "phones": d.phones ?? ["0000000000"],
+          "emails": d.emails ?? ["info@shipacommerce.com"],
+          "address": {
+            "country": d.address?.country ?? "AE",
+            "city": d.address?.city ?? "Dubai",
+            "state": d.address?.state ?? "Dubai",
+            "street": d.address?.street ?? ["-"],
+            "post_code": d.address?.postCode ?? "00000"
+          },
+          "location": {
+            "longitude": d.location?.longitude?.toDouble() ?? 0.0,
+            "latitude": d.location?.latitude?.toDouble() ?? 0.0
+          }
+        };
+      }
 
-      // Prepare shipper data (default values)
-      Map<String, dynamic> shipper = {
-        "name": "QA Shipper",
-        "phones": ["0097150111111"],
-        "emails": ["info@qa.com"],
-        "address": {
-          "country": "AE",
-          "city": "Dubai",
-          "state": "Dubai",
-          "street": ["Dubai"],
-          "post_code": "AB12345"
-        },
-        "location": {
-          "longitude": -77.0364,
-          "latitude": 38.8951
-        }
-      };
+      Map<String, dynamic> consigneeData = mapAddress(selectedConsignee, "Consignee by mobile app");
+      Map<String, dynamic> shipperData = mapAddress(selectedShipper, "Shipper by mobile app");
 
       Response response = await _sortationRepo.createContainer(
-        user: "sdeivasigamani@agility.com", // TODO: Get from logged-in user
+        user: Get.find<AuthController>().userName,
         tenant: "other",
         channel: "ch",
         containerNumber: refController.text.trim(),
-        entity: "DXB",
-        flightNumber: null, // Can add a field for this if needed
+        entity: entityCode,
+        flightNumber: null,
         type: "bag",
         description: "Container created from mobile app",
         shipDate: DateTime.now().toIso8601String(),
-        consignee: consignee,
-        shipper: shipper,
-        accountNumber: "0001",
-        accountEntity: "DXB",
+        consignee: consigneeData,
+        shipper: shipperData,
+        accountNumber: units['defaultAccountNumber'] ?? "001",
+        accountEntity: entityCode,
         weightValue: weight,
         weightUnit: units['weightUnit'] ?? "kg",
         length: length,

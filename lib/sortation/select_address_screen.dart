@@ -191,7 +191,7 @@ class _SelectAddressScreenState extends State<SelectAddressScreen> {
 
                             return GestureDetector(
                               onTap: () {
-                                Navigator.pop(context, displayString);
+                                Navigator.pop(context, addressEntry);
                               },
                               child: Container(
                                 padding: const EdgeInsets.all(18),
