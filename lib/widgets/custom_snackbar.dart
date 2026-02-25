@@ -5,20 +5,21 @@ import '../utils/dimensions.dart';
 
 
 void customSnackBar(String? message, {bool isError = true}) {
-  if(message != null && message.isNotEmpty) {
-    Get.snackbar(
-      isError ? "Error" : "Success",
-      message,
-      backgroundColor: isError ? Colors.red : Colors.green,
-      colorText: Colors.white,
-      maxWidth: Get.width,
-      duration: const Duration(seconds: 2),
-      snackStyle: SnackStyle.FLOATING,
-      snackPosition: SnackPosition.TOP,
-      margin: const EdgeInsets.all(10),
-      borderRadius: 5,
-      isDismissible: true,
-      dismissDirection: DismissDirection.horizontal,
-    );
+  if (message != null && message.isNotEmpty) {
+    try {
+      Get.rawSnackbar(
+        title: isError ? "Error" : "Success",
+        message: message,
+        backgroundColor: isError ? Colors.red.withOpacity(0.8) : Colors.green.withOpacity(0.8),
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(10),
+        borderRadius: 8,
+        snackStyle: SnackStyle.FLOATING,
+        isDismissible: true,
+      );
+    } catch (e) {
+      debugPrint("Error showing customSnackBar: $e");
+    }
   }
 }

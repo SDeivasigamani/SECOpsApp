@@ -7,6 +7,7 @@ import 'package:opsapp/utils/client_api.dart';
 import 'package:opsapp/login/auth_controller.dart';
 import 'package:opsapp/search_parcel/barcode_scan_screen.dart';
 import 'package:opsapp/sortation/model/address_book_model.dart';
+import 'package:opsapp/widgets/custom_snackbar.dart';
 
 
 class CreateBoxScreen extends StatefulWidget {
@@ -25,7 +26,6 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
 
   String? selectedEntity;
   Matches? selectedConsignee;
-  Matches? selectedShipper;
   String? selectedSortationRule;
   
   late SortationRepo _sortationRepo;
@@ -52,10 +52,9 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
     );
   }
 
-  Map<String, String> _getUnits() {
-    String? entity = selectedEntity; // This might be "DXB - Dubai" or just "DXB"
+  Map<String, dynamic> _getUnits() {
+    String? entity = selectedEntity;
     if (entity == null || entity.isEmpty) {
-       // Fallback to controller's selected entity if local is null
        final authController = Get.find<AuthController>();
        entity = authController.selectedEntity;
     }
@@ -64,12 +63,25 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
       final code = entity.split(" - ")[0];
       final authController = Get.find<AuthController>();
       if (authController.entityConfigurations.containsKey(code)) {
-        return authController.entityConfigurations[code]!;
+        final config = authController.entityConfigurations[code];
+        final defaults = config["entityDefaults"] ?? {};
+        
+        return {
+          "weightUnit": defaults["weightUnit"]?.toString() ?? "kg",
+          "dimensionUnit": defaults["dimensionUnit"]?.toString() ?? "cm",
+          "defaultAccountNumber": defaults["defaultAccountNumber"]?.toString() ?? "001",
+          "defaultAccountEntity": defaults["defaultAccountEntity"]?.toString() ?? code,
+          "entityData": config, // Store the whole config for address mapping
+        };
       }
     }
     
-    // Default fallback
-    return {"weightUnit": "kg", "dimensionUnit": "cm", "defaultAccountNumber": "001"};
+    return {
+      "weightUnit": "kg",
+      "dimensionUnit": "cm",
+      "defaultAccountNumber": "001",
+      "defaultAccountEntity": "DXB",
+    };
   }
 
   @override
@@ -327,19 +339,45 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
   }
 
   Widget _shipperBox() {
-    return _addressSelectBox(
-      label: "Shipper",
-      hint: "Select Shipper",
-      selected: selectedShipper,
-      onTap: () async {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const SelectAddressScreen()),
-        );
-        if (result != null && result is Matches) {
-          setState(() => selectedShipper = result);
-        }
-      },
+    final units = _getUnits();
+    String displayText = "Select Entity to Load Shipper";
+    if (units['entityData'] != null) {
+      final config = units['entityData'] as Map<String, dynamic>;
+      final addr = config["address"] ?? {};
+      displayText = [
+        config["name"] ?? "",
+        (addr["street"] is List) ? addr["street"].join(", ") : (addr["street"] ?? ""),
+        "${addr["city"] ?? ""}, ${addr["state"] ?? ""}",
+        "${addr["country"] ?? ""} - ${addr["postCode"] ?? ""}",
+        if (config["phones"] != null && (config["phones"] as List).isNotEmpty)
+          (config["phones"] as List).join(", "),
+        if (config["emails"] != null && (config["emails"] as List).isNotEmpty)
+          (config["emails"] as List).join(", "),
+      ].where((s) => s.isNotEmpty && s != ", " && s != " - ").join("\n");
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Shipper", style: TextStyle(fontSize: 14, color: Colors.black54)),
+        const SizedBox(height: 5),
+        Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(minHeight: 55),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            displayText,
+            style: const TextStyle(
+              color: Colors.black,
+              height: 1.5,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -357,6 +395,10 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
         d.address?.street?.join(", ") ?? "",
         "${d.address?.city ?? ""}, ${d.address?.state ?? ""}",
         "${d.address?.country ?? ""} - ${d.address?.postCode ?? ""}",
+        if (d.phones != null && d.phones!.isNotEmpty)
+          d.phones!.join(", "),
+        if (d.emails != null && d.emails!.isNotEmpty)
+          d.emails!.join(", "),
       ].where((s) => s.isNotEmpty && s != ", " && s != " - ").join("\n");
     }
 
@@ -369,6 +411,7 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
           const SizedBox(height: 5),
           Container(
             width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 55),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
@@ -413,16 +456,19 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
           const SizedBox(height: 5),
           Container(
             width: double.infinity,
-            height: 70,
+            constraints: const BoxConstraints(minHeight: 55),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              selectedSortationRule ?? "Select Sortation Rule",
-              style: TextStyle(
-                color: selectedSortationRule != null ? Colors.black : Colors.black54,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                selectedSortationRule ?? "Select Sortation Rule",
+                style: TextStyle(
+                  color: selectedSortationRule != null ? Colors.black : Colors.black54,
+                ),
               ),
             ),
           ),
@@ -477,7 +523,7 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
   Future<void> _createContainer() async {
     // Validate required fields
     if (refController.text.trim().isEmpty) {
-      Get.snackbar("Error", "Please enter a reference number", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      customSnackBar("Please enter a reference number", isError: true);
       return;
     }
 
@@ -498,8 +544,30 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
       double height = double.tryParse(heightController.text) ?? 40;
 
       // Function to map Matches to Map<String, dynamic>
-      Map<String, dynamic> mapAddress(Matches? match, String defaultName) {
+      Map<String, dynamic> mapAddress(Matches? match, String defaultName, {bool isShipper = false}) {
         if (match == null || match.details == null) {
+          // If this is a shipper and we have entity data, use it as fallback
+          if (isShipper && units['entityData'] != null) {
+            final config = units['entityData'] as Map<String, dynamic>;
+            final addr = config["address"] ?? {};
+            return {
+              "name": config["name"] ?? defaultName,
+              "phones": (config["phones"] is List) ? config["phones"] : ["0000000000"],
+              "emails": (config["emails"] is List) ? config["emails"] : ["info@shipacommerce.com"],
+              "address": {
+                "country": addr["country"] ?? "AE",
+                "city": addr["city"] ?? "Dubai",
+                "state": addr["state"] ?? "Dubai",
+                "street": (addr["street"] is List) ? addr["street"] : ["-"],
+                "post_code": addr["postCode"] ?? "00000"
+              },
+              "location": {
+                "longitude": config["location"]?["longitude"]?.toDouble() ?? 0.0,
+                "latitude": config["location"]?["latitude"]?.toDouble() ?? 0.0
+              }
+            };
+          }
+
           return {
             "name": defaultName,
             "phones": ["0000000000"],
@@ -534,7 +602,7 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
       }
 
       Map<String, dynamic> consigneeData = mapAddress(selectedConsignee, "Consignee by mobile app");
-      Map<String, dynamic> shipperData = mapAddress(selectedShipper, "Shipper by mobile app");
+      Map<String, dynamic> shipperData = mapAddress(null, "Shipper by mobile app", isShipper: true);
 
       Response response = await _sortationRepo.createContainer(
         user: Get.find<AuthController>().userName,
@@ -549,7 +617,7 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
         consignee: consigneeData,
         shipper: shipperData,
         accountNumber: units['defaultAccountNumber'] ?? "001",
-        accountEntity: entityCode,
+        accountEntity: units['defaultAccountEntity'] ?? entityCode,
         weightValue: weight,
         weightUnit: units['weightUnit'] ?? "kg",
         length: length,
@@ -562,7 +630,7 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
         Get.snackbar("Success", "Container created successfully", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
         Navigator.pop(context, refController.text.trim());
       } else {
-        String errorMessage = "Failed to add package: ${response.statusText}";
+        String errorMessage = response.statusText ?? "Unknown error";
         if (response.body != null) {
           try {
             if (response.body is List && response.body.isNotEmpty) {

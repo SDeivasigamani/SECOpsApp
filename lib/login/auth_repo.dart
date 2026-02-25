@@ -128,24 +128,16 @@ class AuthRepo {
     return sharedPreferences.getStringList(AppConstants.entities) ?? [];
   }
 
-  Future<bool> saveEntityConfigurations(Map<String, Map<String, String>> configs) async {
+  Future<bool> saveEntityConfigurations(Map<String, dynamic> configs) async {
     String jsonString = json.encode(configs);
     return await sharedPreferences.setString(AppConstants.entityConfigurations, jsonString);
   }
 
-  Map<String, Map<String, String>> getEntityConfigurations() {
+  Map<String, dynamic> getEntityConfigurations() {
     String? jsonString = sharedPreferences.getString(AppConstants.entityConfigurations);
     if (jsonString != null) {
       try {
-        Map<String, dynamic> decoded = json.decode(jsonString);
-        // Convert Map<String, dynamic> to Map<String, Map<String, String>>
-        Map<String, Map<String, String>> result = {};
-        decoded.forEach((key, value) {
-          if (value is Map) {
-            result[key] = Map<String, String>.from(value);
-          }
-        });
-        return result;
+        return json.decode(jsonString);
       } catch (e) {
         print("Error decoding entity configurations: $e");
       }
