@@ -97,7 +97,7 @@ class AuthController extends GetxController implements GetxService {
     entityConfigurations = authRepo.getEntityConfigurations();
   }
 
-  Map<String, Map<String, String>> entityConfigurations = {};
+  Map<String, dynamic> entityConfigurations = {};
 
   Future<void> updateUserEntities() async {
     // Check if we need updates: 
@@ -138,19 +138,8 @@ class AuthController extends GetxController implements GetxService {
         final entityName = response.body["name"] ?? "";
         
         // Parse entityDefaults
-        if (response.body["entityDefaults"] != null) {
-          final defaults = response.body["entityDefaults"];
-          entityConfigurations[code] = {
-            "weightUnit": defaults["weightUnit"]?.toString() ?? "kg",
-            "dimensionUnit": defaults["dimensionUnit"]?.toString() ?? "cm",
-          };
-        } else {
-           // Default fallback
-           entityConfigurations[code] = {
-            "weightUnit": "kg",
-            "dimensionUnit": "cm",
-          };
-        }
+        // Parse entityDefaults and useful fields
+        entityConfigurations[code] = response.body;
         hasConfigUpdates = true;
 
         String newValue = "$code - $entityName";
