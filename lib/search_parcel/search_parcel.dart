@@ -151,6 +151,11 @@ class _SearchParcelScreenState extends State<SearchParcelScreen> {
                     Expanded(
                       child: TextField(
                         controller: _controller,
+                        onChanged: (value) {
+                          if (value.trim().length == 13) {
+                            _searchParcel();
+                          }
+                        },
                         decoration: InputDecoration(
                           labelText: "Enter Parcel Number",
                           labelStyle: const TextStyle(
