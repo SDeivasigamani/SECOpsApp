@@ -18,7 +18,7 @@ class GenerateTripController extends GetxController {
     DateTime.now().add(const Duration(days: 1)).month,
     DateTime.now().add(const Duration(days: 1)).day,
   );
-  DateTime fromDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(const Duration(days: 30));
+  DateTime fromDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(const Duration(days: 180));
   
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -116,7 +116,7 @@ class GenerateTripController extends GetxController {
         }
 
         Get.to(() => const GenerateTripResultsScreen());
-        Get.snackbar("Success", "Search successful", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        //Get.snackbar("Success", "Search successful", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       } else {
         String errorMessage = "Container not found: ${response?.statusText}";
         if (response?.body != null) {
