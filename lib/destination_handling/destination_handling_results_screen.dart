@@ -260,7 +260,7 @@ class _DestinationHandlingResultsScreenState extends State<DestinationHandlingRe
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        int? selectedActionIndex;
+        int? selectedActionIndex; // No selection by default
         
         return StatefulBuilder(
           builder: (context, setState) {
@@ -290,17 +290,17 @@ class _DestinationHandlingResultsScreenState extends State<DestinationHandlingRe
                   // Title / Confirmation Button
                   GestureDetector(
                     onTap: () {
-                      if (selectedActionIndex != null) {
-                        Navigator.pop(context);
-                        final action = actions[selectedActionIndex!];
-                        Get.to(() => SelectReasonScreen(actionType: action['actionType']));
-                      }
+                      Navigator.pop(context);
+                      final actionType = selectedActionIndex != null 
+                          ? actions[selectedActionIndex!]['actionType'] 
+                          : 'General Updates';
+                      Get.to(() => SelectReasonScreen(actionType: actionType));
                     },
                     child: Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: selectedActionIndex != null ? Colors.green : Colors.grey,
+                        color: Colors.green, // Always enabled
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: const Text(
@@ -339,6 +339,9 @@ class _DestinationHandlingResultsScreenState extends State<DestinationHandlingRe
                           setState(() {
                             selectedActionIndex = index;
                           });
+                          // Navigate immediately on selection
+                          Navigator.pop(context);
+                          Get.to(() => SelectReasonScreen(actionType: action['actionType']));
                         },
                       );
                     },

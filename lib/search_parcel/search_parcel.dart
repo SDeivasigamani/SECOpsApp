@@ -371,8 +371,8 @@ class _SearchParcelScreenState extends State<SearchParcelScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _infoColumn("Weight", ((parcelDetails?.items?[0].weight?.value.toString() ?? "") + " " + (parcelDetails?.items?[0].weight?.unit.toString() ?? "")), bold: true),
-                _infoColumn("Chargeable Weight", ((parcelDetails?.items?[0].chargeWeight?.value.toString() ?? "") + " " + (parcelDetails?.items?[0].chargeWeight?.unit.toString() ?? "")),
+                _infoColumn("Weight", ((parcelDetails?.items?[0].weight?.value?.toString() ?? "") + " " + (parcelDetails?.items?[0].weight?.unit?.toString() ?? "")), bold: true),
+                _infoColumn("Chargeable Weight", ((parcelDetails?.items?[0].chargeWeight?.value?.toString() ?? "") + " " + (parcelDetails?.items?[0].chargeWeight?.unit?.toString() ?? "")),
                     bold: true),
               ],
             ),
@@ -380,14 +380,14 @@ class _SearchParcelScreenState extends State<SearchParcelScreen> {
           Divider(height: 1),
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: _infoColumn("Dimensions (L x W x H)", ((parcelDetails?.items?[0].dimensions?.length.toString() ?? "") + " x " + (parcelDetails?.items?[0].dimensions?.width.toString() ?? "") + " x " + (parcelDetails?.items?[0].dimensions?.height.toString() ?? "")),
+            child: _infoColumn("Dimensions (L x W x H)", ((parcelDetails?.items?[0].dimensions?.length?.toString() ?? "") + " x " + (parcelDetails?.items?[0].dimensions?.width?.toString() ?? "") + " x " + (parcelDetails?.items?[0].dimensions?.height?.toString() ?? "")),
                 bold: true),
           ),
           Divider(height: 1),
           Padding(
             padding: const EdgeInsets.all(12.0),
             child:
-                _infoColumn("Receiver Details", ((parcelDetails?.items?[0].receiver?.name.toString() ?? "") +"\n"+(parcelDetails?.items?[0].receiver?.street.toString() ?? "")+"\n"+(parcelDetails?.items?[0].receiver?.city.toString() ?? "")+"\n"+(parcelDetails?.items?[0].receiver?.country.toString() ?? "")+" - "+(parcelDetails?.items?[0].receiver?.postCode.toString() ?? "")+"\n"+(parcelDetails?.items?[0].receiver?.phones.toString() ?? "")+"\n"+(parcelDetails?.items?[0].receiver?.emails.toString() ?? "")), bold: true),
+                _infoColumn("Receiver Details", ((parcelDetails?.items?[0].receiver?.name ?? "") +"\n"+(parcelDetails?.items?[0].receiver?.street?.join(", ") ?? "")+"\n"+(parcelDetails?.items?[0].receiver?.city ?? "")+"\n"+(parcelDetails?.items?[0].receiver?.country ?? "")+" - "+(parcelDetails?.items?[0].receiver?.postCode ?? "")+"\n"+(parcelDetails?.items?[0].receiver?.phones?.join(", ") ?? "")+"\n"+(parcelDetails?.items?[0].receiver?.emails?.join(", ") ?? "")), bold: true),
           ),
         ],
       ),

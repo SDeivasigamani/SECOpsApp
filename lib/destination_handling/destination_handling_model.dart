@@ -216,17 +216,17 @@ class Weight {
 }
 
 class Dimensions {
-  int? length;
-  int? width;
-  int? height;
+  double? length;
+  double? width;
+  double? height;
   String? unit;
 
   Dimensions({this.length, this.width, this.height, this.unit});
 
   Dimensions.fromJson(Map<String, dynamic> json) {
-    length = json['length'];
-    width = json['width'];
-    height = json['height'];
+    length = (json['length'] as num?)?.toDouble();
+    width = (json['width'] as num?)?.toDouble();
+    height = (json['height'] as num?)?.toDouble();
     unit = json['unit'];
   }
 
@@ -241,13 +241,13 @@ class Dimensions {
 }
 
 class CustomsDeclared {
-  int? amount;
+  double? amount;
   String? currency;
 
   CustomsDeclared({this.amount, this.currency});
 
   CustomsDeclared.fromJson(Map<String, dynamic> json) {
-    amount = json['amount'];
+    amount = (json['amount'] as num?)?.toDouble();
     currency = json['currency'];
   }
 
@@ -353,7 +353,7 @@ class Data {
 
   Data.fromJson(Map<String, dynamic> json) {
     key = json['key'];
-    value = json['value'];
+    value = json['value']?.toString();
   }
 
   Map<String, dynamic> toJson() {

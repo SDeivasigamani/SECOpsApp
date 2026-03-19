@@ -6,6 +6,9 @@ import 'package:opsapp/parcel_inbound/select_reason.dart';
 
 import '../login/auth_controller.dart';
 import '../search_parcel/barcode_scan_screen.dart';
+import '../search_parcel/model/parcel_detail_model.dart';
+import '../search_parcel/pdf_view_screen.dart';
+
 
 class ParcelInboundScreen extends StatefulWidget {
   const ParcelInboundScreen({super.key});
@@ -158,17 +161,34 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
     });
   }
 
+  Future<void> _handleSearchResponse(String barcode) async {
+    await Get.find<AuthController>().searchParcelDetail(barcode, _toDate, _fromDate);
+
+    var detail = Get.find<AuthController>().parcelDetails;
+    if (detail != null && detail.items != null && detail.items!.isNotEmpty) {
+      var item = detail.items![0];
+      if (item.attachments != null && item.attachments!.isNotEmpty) {
+        String? selectedEntity = Get.find<AuthController>().selectedEntity;
+        if (selectedEntity != null && selectedEntity.startsWith("NKL")) {
+          var attachment = item.attachments![0];
+          if (attachment.downloadUrl != null) {
+            Get.to(() => PDFViewScreen(
+                  url: attachment.downloadUrl!,
+                  fileName: attachment.originalFileName ?? "document.pdf",
+                ));
+          }
+        }
+      }
+    }
+  }
+
   Future<void> _scanBarcode() async {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => BarcodeScannerScreen(
           onDetect: (barcode) {
-            setState(() {
-              _scanController.text = barcode;
-              // TODO: Call your API or perform search
-              Get.find<AuthController>().searchParcelDetail(barcode, _toDate, _fromDate);
-            });
+            _handleSearchResponse(barcode);
           },
         ),
       ),
@@ -192,316 +212,517 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Scan input
-            Row(
+      body: GetBuilder<AuthController>(builder: (controller) {
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _scanController,
-                    decoration: InputDecoration(
-                      labelText: "Scan packages One by One",
-                      labelStyle: const TextStyle(
-                        color: Colors.green, // Label text color
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: Colors.green,
-                          width: 1.0,
+                // Scan input
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _scanController,
+                        decoration: InputDecoration(
+                          labelText: "Scan packages One by One",
+                          labelStyle: const TextStyle(
+                            color: Colors.green, // Label text color
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Colors.grey,
+                              width: 1.0,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Colors.green,
+                              width: 1.0,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.search, size: 32, color: Colors.black),
-                  onPressed: () {
-                    String parcelNumber = _scanController.text.trim();
-                    
-                    // Validate parcel number length
-                    if (parcelNumber.length < 5) {
-                      Get.snackbar("Error", "Parcel number must be more than 5 characters", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.search, size: 32, color: Colors.black),
+                      onPressed: () {
+                        String parcelNumber = _scanController.text.trim();
 
-                      return;
-                    }
-                    
-                    Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: _pasteFromClipboard,
-                  child: const Text(
-                    "Paste from clipboard",
-                    style: TextStyle(
-                      color: Colors.green,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Colors.green,
-                      height: 1.5,
+                        // Validate parcel number length
+                        if (parcelNumber.length < 5) {
+                          Get.snackbar("Error", "Parcel number must be more than 5 characters",
+                              backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+
+                          return;
+                        }
+
+                        _handleSearchResponse(parcelNumber);
+                      },
                     ),
-                  ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: _resetSearch,
-                  child: const Text(
-                    "Reset Search",
-                    style: TextStyle(
-                      color: Colors.green,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Colors.green,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTapDown: (details) {
-                    _showDateFilterMenu(context, details.globalPosition);
-                  },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Date Filter",
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: _pasteFromClipboard,
+                      child: const Text(
+                        "Paste from clipboard",
                         style: TextStyle(
                           color: Colors.green,
-                          fontWeight: FontWeight.w500,
                           decoration: TextDecoration.underline,
                           decorationColor: Colors.green,
+                          height: 1.5,
                         ),
                       ),
-                      SizedBox(width: 6),
-                      Icon(Icons.arrow_drop_down, color: Colors.green),
+                    ),
+                    TextButton(
+                      onPressed: _resetSearch,
+                      child: const Text(
+                        "Reset Search",
+                        style: TextStyle(
+                          color: Colors.green,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.green,
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: GestureDetector(
+                      onTapDown: (details) {
+                        _showDateFilterMenu(context, details.globalPosition);
+                      },
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Date Filter",
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.w500,
+                              decoration: TextDecoration.underline,
+                              decorationColor: Colors.green,
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Icon(Icons.arrow_drop_down, color: Colors.green),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Date Filters
+                if (_isCustomDate)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          const Text("From"),
+                          OutlinedButton(
+                            onPressed: () => _pickDate(true),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.blueGrey),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min, // keeps the button compact
+                              children: [
+                                const Icon(Icons.calendar_today, size: 18, color: Colors.blueGrey),
+                                const SizedBox(width: 8), // spacing between icon and text
+                                Text(
+                                  "${_fromDate.day}-${_fromDate.month}-${_fromDate.year}",
+                                  style: const TextStyle(color: Colors.black87, fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          const Text("To"),
+                          OutlinedButton(
+                            onPressed: () => _pickDate(false),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.blueGrey),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min, // keeps the button compact
+                              children: [
+                                const Icon(Icons.calendar_today, size: 18, color: Colors.blueGrey),
+                                const SizedBox(width: 8), // spacing between icon and text
+                                Text(
+                                  "${_toDate.day}-${_toDate.month}-${_toDate.year}",
+                                  style: const TextStyle(color: Colors.black87, fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
                     ],
                   ),
+
+                const SizedBox(height: 10),
+
+                Builder(builder: (context) {
+                  bool showCard = controller.parcelDetails != null;
+                  if (showCard && controller.parcelDetails!.items != null && controller.parcelDetails!.items!.isNotEmpty) {
+                    var item = controller.parcelDetails!.items![0];
+                    String? selectedEntity = controller.selectedEntity;
+                    if (item.attachments != null &&
+                        item.attachments!.isNotEmpty &&
+                        selectedEntity != null &&
+                        selectedEntity.startsWith("NKL")) {
+                      showCard = false;
+                    }
+                  }
+
+                  if (showCard) {
+                    return Column(
+                      children: [
+                        _parcelDetailCard(controller.parcelDetails),
+                        const SizedBox(height: 10),
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+
+                const Text("Product Condition:"),
+
+                // Radio Buttons
+                Row(
+                  children: [
+                    Radio(
+                      value: "OK",
+                      groupValue: Get.find<AuthController>().condition,
+                      onChanged: (value) => setState(() {
+                        Get.find<AuthController>().condition = value.toString();
+                        Get.find<AuthController>().update();
+                      }),
+                    ),
+                    const Text("OK"),
+                    const SizedBox(
+                      width: 50,
+                    ),
+                    Radio(
+                      value: "HOLD",
+                      groupValue: Get.find<AuthController>().condition,
+                      onChanged: (value) => setState(() {
+                        Get.find<AuthController>().condition = value.toString();
+                        Get.find<AuthController>().update();
+                      }),
+                    ),
+                    const Text("HOLD"),
+                  ],
                 ),
+
+                const SizedBox(height: 10),
+
+                // Counters
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              "Parcel Received \n OK",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            const SizedBox(height: 4), // small space between text and count
+                            Obx(() {
+                              final controller = Get.find<AuthController>();
+                              return Text(
+                                controller.okCount.value.toString(),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.green,
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 8,
+                    ),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              "Parcel Received \n HOLD",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            const SizedBox(height: 4), // small space between text and count
+                            Obx(() {
+                              final controller = Get.find<AuthController>();
+                              return Text(
+                                controller.holdCount.value.toString(),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.green,
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // Bottom Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      width: 140,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        ),
+                        onPressed: _isValidating ? null : _validateParcels,
+                        child: _isValidating
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              )
+                            : const Text("Validate"),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 140,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        ),
+                        onPressed: () => _submitParcels(context),
+                        child: const Text("Done"),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _parcelDetailCard(ParcelDetailModel? parcelDetails) {
+    var item = parcelDetails?.items?[0];
+    var receiver = item?.receiver;
+
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.blueGrey.shade50,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
               ),
             ),
-            // Date Filters
-            if(_isCustomDate) Row(
+            child: Text.rich(
+              TextSpan(
+                text: "Parcel Number: ",
+                style: TextStyle(color: Colors.black54),
+                children: [
+                  TextSpan(
+                    text: item?.trackingNumber,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  children: [
-                    const Text("From"),
-                    OutlinedButton(
-                      onPressed: () => _pickDate(true),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.blueGrey),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min, // keeps the button compact
-                        children: [
-                          const Icon(Icons.calendar_today, size: 18, color: Colors.blueGrey),
-                          const SizedBox(width: 8), // spacing between icon and text
-                          Text(
-                            "${_fromDate.day}-${_fromDate.month}-${_fromDate.year}",
-                            style: const TextStyle(color: Colors.black87, fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-                Column(
-                  children: [
-                    const Text("To"),
-                    OutlinedButton(
-                      onPressed: () => _pickDate(false),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.blueGrey),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min, // keeps the button compact
-                        children: [
-                          const Icon(Icons.calendar_today, size: 18, color: Colors.blueGrey),
-                          const SizedBox(width: 8), // spacing between icon and text
-                          Text(
-                            "${_toDate.day}-${_toDate.month}-${_toDate.year}",
-                            style: const TextStyle(color: Colors.black87, fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                _infoColumn("Container Number", item?.containerTrackingNumber ?? ""),
+                _infoColumn("Status", item?.status ?? "", bold: true),
               ],
             ),
-
-            const SizedBox(height: 10),
-            const Text("Product Condition:"),
-
-            // Radio Buttons
-            Row(
-              children: [
-                Radio(
-                  value: "OK",
-                  groupValue: Get.find<AuthController>().condition,
-                  onChanged: (value) => setState(() {
-                    Get.find<AuthController>().condition = value.toString();
-                    Get.find<AuthController>().update();
-                  }),
-                ),
-                const Text("OK"),
-                const SizedBox(width: 50,),
-                Radio(
-                  value: "HOLD",
-                  groupValue: Get.find<AuthController>().condition,
-                  onChanged: (value) => setState(() {
-                    Get.find<AuthController>().condition = value.toString();
-                    Get.find<AuthController>().update();
-                  }),
-                ),
-                const Text("HOLD"),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-            // Counters
-            Row(
+          ),
+          Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          "Parcel Received \n OK",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        const SizedBox(height: 4), // small space between text and count
-                        Obx(() {
-                          final controller = Get.find<AuthController>();
-                          return Text(
-                            controller.okCount.value.toString(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.green,
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8,),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          "Parcel Received \n HOLD",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        const SizedBox(height: 4), // small space between text and count
-                        Obx(() {
-                          final controller = Get.find<AuthController>();
-                          return Text(
-                            controller.holdCount.value.toString(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.green,
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                ),
-
+                _infoColumn("Weight",
+                    ((item?.weight?.value?.toString() ?? "") + " " + (item?.weight?.unit?.toString() ?? "")),
+                    bold: true),
+                _infoColumn("Chargeable Weight",
+                    ((item?.chargeWeight?.value?.toString() ?? "") + " " + (item?.chargeWeight?.unit?.toString() ?? "")),
+                    bold: true),
               ],
             ),
-
-            const SizedBox(height: 100),
-
-            // Bottom Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(
-                  width: 140,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    ),
-                    onPressed: _validateParcels,
-                    child: const Text("Validate"),
-                  ),
-                ),
-                SizedBox(
-                  width: 140,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    ),
-                    onPressed: () => _submitParcels(context),
-                    child: const Text("Done"),
-                  ),
-                ),
-              ],
-            )
-
+          ),
+          Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: _infoColumn(
+                "Dimensions (L x W x H)",
+                ((item?.dimensions?.length?.toString() ?? "") +
+                    " x " +
+                    (item?.dimensions?.width?.toString() ?? "") +
+                    " x " +
+                    (item?.dimensions?.height?.toString() ?? "")),
+                bold: true),
+          ),
+          Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: _infoColumn(
+              "Receiver Details",
+              ((receiver?.name ?? "") +
+                  "\n" +
+                  (receiver?.street?.join(", ") ?? "") +
+                  "\n" +
+                  (receiver?.city ?? "") +
+                  "\n" +
+                  (receiver?.country ?? "") +
+                  " - " +
+                  (receiver?.postCode ?? "") +
+                  "\n" +
+                  (receiver?.phones?.join(", ") ?? "") +
+                  "\n" +
+                  (receiver?.emails?.join(", ") ?? "")),
+              bold: true,
+            ),
+          ),
+          if (item?.attachments != null && item!.attachments!.isNotEmpty) ...[
+            Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Attachments", style: TextStyle(fontSize: 14, color: Colors.black87)),
+                  const SizedBox(height: 8),
+                  ...item.attachments!.map((attachment) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: InkWell(
+                        onTap: () {
+                          if (attachment.downloadUrl != null) {
+                            Get.to(() => PDFViewScreen(
+                                  url: attachment.downloadUrl!,
+                                  fileName: attachment.originalFileName ?? "document.pdf",
+                                ));
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            const Icon(Icons.picture_as_pdf, color: Colors.red),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                attachment.originalFileName ?? "View document",
+                                style: const TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ],
+              ),
+            ),
           ],
-        ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoColumn(String title, String value, {bool bold = false}) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: TextStyle(fontSize: 14, color: Colors.black87)),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }

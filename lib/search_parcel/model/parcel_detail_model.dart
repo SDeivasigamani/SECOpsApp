@@ -36,27 +36,31 @@ class Items {
   Dimensions? dimensions;
   CustomsDeclared? customsDeclared;
   List<References>? references;
-  Null? isShippable;
+  bool? isShippable;
   bool? holdStatus;
   Audit? audit;
   List<String>? services;
+  List<Traces>? traces;
+  List<Attachments>? attachments;
 
   Items(
       {this.trackingNumber,
-        this.scheme,
-        this.status,
-        this.containerTrackingNumber,
-        this.receiver,
-        this.type,
-        this.weight,
-        this.chargeWeight,
-        this.dimensions,
-        this.customsDeclared,
-        this.references,
-        this.isShippable,
-        this.holdStatus,
-        this.audit,
-        this.services});
+      this.scheme,
+      this.status,
+      this.containerTrackingNumber,
+      this.receiver,
+      this.type,
+      this.weight,
+      this.chargeWeight,
+      this.dimensions,
+      this.customsDeclared,
+      this.references,
+      this.isShippable,
+      this.holdStatus,
+      this.audit,
+      this.services,
+      this.traces,
+      this.attachments});
 
   Items.fromJson(Map<String, dynamic> json) {
     trackingNumber = json['trackingNumber'];
@@ -68,7 +72,7 @@ class Items {
         : null;
     type = json['type'];
     weight =
-    json['weight'] != null ? new Weight.fromJson(json['weight']) : null;
+        json['weight'] != null ? new Weight.fromJson(json['weight']) : null;
     chargeWeight = json['chargeWeight'] != null
         ? new Weight.fromJson(json['chargeWeight'])
         : null;
@@ -87,7 +91,20 @@ class Items {
     isShippable = json['isShippable'];
     holdStatus = json['holdStatus'];
     audit = json['audit'] != null ? new Audit.fromJson(json['audit']) : null;
-    services = json['services'] != null ? json['services'].cast<String>() : null;
+    services =
+        json['services'] != null ? json['services'].cast<String>() : null;
+    if (json['traces'] != null) {
+      traces = <Traces>[];
+      json['traces'].forEach((v) {
+        traces!.add(new Traces.fromJson(v));
+      });
+    }
+    if (json['attachments'] != null) {
+      attachments = <Attachments>[];
+      json['attachments'].forEach((v) {
+        attachments!.add(new Attachments.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -121,6 +138,12 @@ class Items {
       data['audit'] = this.audit!.toJson();
     }
     data['services'] = this.services;
+    if (this.traces != null) {
+      data['traces'] = this.traces!.map((v) => v.toJson()).toList();
+    }
+    if (this.attachments != null) {
+      data['attachments'] = this.attachments!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }
@@ -139,15 +162,15 @@ class Receiver {
 
   Receiver(
       {this.name,
-        this.phones,
-        this.emails,
-        this.longitude,
-        this.latitude,
-        this.country,
-        this.city,
-        this.state,
-        this.street,
-        this.postCode});
+      this.phones,
+      this.emails,
+      this.longitude,
+      this.latitude,
+      this.country,
+      this.city,
+      this.state,
+      this.street,
+      this.postCode});
 
   Receiver.fromJson(Map<String, dynamic> json) {
     name = json['name'];
@@ -159,7 +182,7 @@ class Receiver {
     city = json['city'];
     state = json['state'];
     street = json['street'] != null ? json['street'].cast<String>() : null;
-    postCode = json['postCode'];
+    postCode = json['postCode'] != null ? json['postCode'].toString() : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -198,17 +221,17 @@ class Weight {
 }
 
 class Dimensions {
-  int? length;
-  int? width;
-  int? height;
+  double? length;
+  double? width;
+  double? height;
   String? unit;
 
   Dimensions({this.length, this.width, this.height, this.unit});
 
   Dimensions.fromJson(Map<String, dynamic> json) {
-    length = json['length'];
-    width = json['width'];
-    height = json['height'];
+    length = (json['length'] as num?)?.toDouble();
+    width = (json['width'] as num?)?.toDouble();
+    height = (json['height'] as num?)?.toDouble();
     unit = json['unit'];
   }
 
@@ -223,13 +246,13 @@ class Dimensions {
 }
 
 class CustomsDeclared {
-  int? amount;
+  double? amount;
   String? currency;
 
   CustomsDeclared({this.amount, this.currency});
 
   CustomsDeclared.fromJson(Map<String, dynamic> json) {
-    amount = json['amount'];
+    amount = (json['amount'] as num?)?.toDouble();
     currency = json['currency'];
   }
 
@@ -275,6 +298,98 @@ class Audit {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['createdOn'] = this.createdOn;
     data['modifiedOn'] = this.modifiedOn;
+    return data;
+  }
+}
+
+class Traces {
+  String? user;
+  String? code;
+  String? on;
+  String? onLocal;
+  String? entity;
+  String? branch;
+  List<TraceData>? data;
+
+  Traces(
+      {this.user,
+      this.code,
+      this.on,
+      this.onLocal,
+      this.entity,
+      this.branch,
+      this.data});
+
+  Traces.fromJson(Map<String, dynamic> json) {
+    user = json['user'];
+    code = json['code'];
+    on = json['on'];
+    onLocal = json['onLocal'];
+    entity = json['entity'];
+    branch = json['branch'];
+    if (json['data'] != null) {
+      data = <TraceData>[];
+      json['data'].forEach((v) {
+        data!.add(new TraceData.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['user'] = this.user;
+    data['code'] = this.code;
+    data['on'] = this.on;
+    data['onLocal'] = this.onLocal;
+    data['entity'] = this.entity;
+    data['branch'] = this.branch;
+    if (this.data != null) {
+      data['data'] = this.data!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class TraceData {
+  String? key;
+  String? value;
+
+  TraceData({this.key, this.value});
+
+  TraceData.fromJson(Map<String, dynamic> json) {
+    key = json['key'];
+    value = json['value']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['key'] = this.key;
+    data['value'] = this.value;
+    return data;
+  }
+}
+
+class Attachments {
+  String? type;
+  String? downloadUrl;
+  String? blobId;
+  String? originalFileName;
+
+  Attachments({this.type, this.downloadUrl, this.blobId, this.originalFileName});
+
+  Attachments.fromJson(Map<String, dynamic> json) {
+    type = json['type'];
+    downloadUrl = json['downloadUrl'];
+    blobId = json['blobId'];
+    originalFileName = json['originalFileName'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['type'] = this.type;
+    data['downloadUrl'] = this.downloadUrl;
+    data['blobId'] = this.blobId;
+    data['originalFileName'] = this.originalFileName;
     return data;
   }
 }
