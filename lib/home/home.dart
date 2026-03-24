@@ -285,9 +285,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         value: controller.selectedEntity,
                         isExpanded: true,
                         icon: const Icon(Icons.arrow_drop_down),
-                        onChanged: (String? newValue) {
+                        onChanged: (String? newValue) async {
                             controller.selectedEntity = newValue!;
                             controller.update();
+                            final prefs = await SharedPreferences.getInstance();
+                            String entityToStore = newValue.length >= 3 ? newValue.substring(0, 3) : newValue;
+                            await prefs.setString(AppConstants.selectedEntity, entityToStore);
                         },
                         items: controller.userEntities.map((String location) {
                           return DropdownMenuItem<String>(

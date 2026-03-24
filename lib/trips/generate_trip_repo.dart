@@ -37,7 +37,7 @@ class GenerateTripRepo {
         "from": fromDate,
         "to": toDate
       },
-      "entity": entity ?? sharedPreferences.getString(AppConstants.selectedOperation) ?? "DXB",
+      "entity": entity ?? sharedPreferences.getString(AppConstants.selectedEntity) ?? "DXB",
       "estimatedDeliveryTime": estimatedDeliveryTime,
       "note": note ?? "",
       "trackingNumbers": trackingNumbers,

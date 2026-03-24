@@ -161,6 +161,7 @@ class GenerateTripController extends GetxController {
     required DateTime estimatedDeliveryTime,
     required String truckId,
     String? note,
+    String? entity,
   }) async {
     List<String> selectedBoxNumbers = searchResults
         .where((item) => _selectedItems[item.trackingNumber] == true)
@@ -188,6 +189,7 @@ class GenerateTripController extends GetxController {
         estimatedDeliveryTime: estimatedDeliveryTimeStr,
         truckId: truckId,
         note: note,
+        entity: entity
       );
 
       if (response != null && response.statusCode == 200) {

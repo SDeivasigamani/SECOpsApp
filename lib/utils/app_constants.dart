@@ -9,6 +9,7 @@ class AppConstants {
    static const String entityConfigurations = 'entity_configurations';
    static const String userId = 'user_id';
    static const String selectedOperation = 'select_operation';
+   static const String selectedEntity = 'selected_entity';
    static const String userName = 'user_name';
    static String theme = '${appName}_theme';
 
