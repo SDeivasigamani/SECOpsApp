@@ -291,6 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             final prefs = await SharedPreferences.getInstance();
                             String entityToStore = newValue.length >= 3 ? newValue.substring(0, 3) : newValue;
                             await prefs.setString(AppConstants.selectedEntity, entityToStore);
+                            await controller.selectEntity(entityToStore);
                         },
                         items: controller.userEntities.map((String location) {
                           return DropdownMenuItem<String>(

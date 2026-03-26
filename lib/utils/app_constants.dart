@@ -18,6 +18,7 @@ class AppConstants {
    static const String encryptUrl = '/api/v2/user/encrypt';
    static const String loginUrl = '/api/v2/user/login';
    static const String accessTokenUrl = '/api/v2/user/public-key';
+   static const String selectEntityUrl = '/api/v2/user/select-entity';
    static const String searchParcelUrl = '/api/v2/search';
    static const String appVersionUrl = '/api/appdata';
    static const String parcelUpdateUrl = '/api/v2/update';

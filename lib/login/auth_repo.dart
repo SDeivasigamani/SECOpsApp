@@ -55,6 +55,12 @@ class AuthRepo {
         .postData(AppConstants.accessTokenUrl, {"username": userName});
   }
 
+  Future<Response?> selectEntity(String entity) {
+    return apiClient.postData(AppConstants.selectEntityUrl, {
+      "entity": entity,
+    });
+  }
+
   Future<Response?> getParcelDetail(
       String parcelNumber, DateTime toDate, DateTime fromDate) {
     String toDateStr = toDate.toUtc().toIso8601String();

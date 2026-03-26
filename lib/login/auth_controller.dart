@@ -669,6 +669,15 @@ class AuthController extends GetxController implements GetxService {
     return sharedPreferences.getString(AppConstants.selectedOperation) ?? "";
   }
 
+  Future<void> selectEntity(String entity) async {
+    final response = await authRepo.selectEntity(entity);
+    if (response != null && response.statusCode == 200) {
+      print("Entity selected successfully: ${response.body}");
+    } else {
+      print("Failed to select entity");
+    }
+  }
+
   Future<void> searchParcelDetail(
       String parcelNumber, DateTime toDate, DateTime fromDate) async {
     _hideKeyboard();
