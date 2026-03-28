@@ -50,9 +50,9 @@ class _GenerateTripScreenState extends State<GenerateTripScreen> {
       }
       controller.update();
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Scanned: $code"), duration: const Duration(milliseconds: 500)),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("Scanned: $code"), duration: const Duration(milliseconds: 500)),
+      // );
     }
   }
 

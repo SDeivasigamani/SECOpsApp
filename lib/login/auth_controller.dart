@@ -258,6 +258,12 @@ class AuthController extends GetxController implements GetxService {
         // Fetch entity names
         await updateUserEntities();
 
+        // Call select-entity API
+        if (selectedEntity != null && selectedEntity!.isNotEmpty) {
+           String entityToSelect = selectedEntity!.length >= 3 ? selectedEntity!.substring(0, 3) : selectedEntity!;
+           await selectEntity(entityToSelect);
+        }
+
         // Save username locally
         userName = signInEmailController.text.trim();
         await authRepo.saveUserName(userName);

@@ -22,6 +22,17 @@ class _SearchParcelScreenState extends State<SearchParcelScreen> {
   DateTime _fromDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(const Duration(days: 14));
   String _selectedFilter = "Past 1 month";
   bool _isCustomDate = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Reset parcelDetails and search field when entering the screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.clear();
+      Get.find<AuthController>().parcelDetails = null;
+      Get.find<AuthController>().update();
+    });
+  }
 
 
   void _pasteFromClipboard() async {
@@ -68,7 +79,7 @@ class _SearchParcelScreenState extends State<SearchParcelScreen> {
           DateTime.now().add(const Duration(days: 1)).month,
           DateTime.now().add(const Duration(days: 1)).day,
         );
-        _fromDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(const Duration(days: 14));
+        _fromDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(const Duration(days: 30));
       });
     }
   }

@@ -34,6 +34,7 @@ class DestinationHandlingController extends GetxController {
   Map<String, bool> _selectedItems = {}; // Track selection by trackingNumber
   
   bool get isAllSelected => searchResults.isNotEmpty && searchResults.every((item) => _selectedItems[item.trackingNumber] == true);
+  bool get hasSelection => _selectedItems.values.any((val) => val == true);
 
   // Reasons management
   List<ReasonsListModel>? allReasonsList;

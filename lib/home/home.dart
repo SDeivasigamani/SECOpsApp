@@ -38,10 +38,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getSelectedOperation();
-    Get.find<AuthController>().updateUserEntities();
+    final authController = Get.find<AuthController>();
+    authController.updateUserEntities().then((_) {
+      if (authController.selectedEntity != null && authController.selectedEntity!.isNotEmpty) {
+        String entityToSelect = authController.selectedEntity!.length >= 3 
+            ? authController.selectedEntity!.substring(0, 3) 
+            : authController.selectedEntity!;
+        authController.selectEntity(entityToSelect);
+      }
+    });
   }
 
   void getSelectedOperation() async {

@@ -397,14 +397,14 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
                     }
                   }
 
-                  if (showCard) {
-                    return Column(
-                      children: [
-                        _parcelDetailCard(controller.parcelDetails),
-                        const SizedBox(height: 10),
-                      ],
-                    );
-                  }
+                  // if (showCard) {
+                  //   return Column(
+                  //     children: [
+                  //       _parcelDetailCard(controller.parcelDetails),
+                  //       const SizedBox(height: 10),
+                  //     ],
+                  //   );
+                  // }
                   return const SizedBox.shrink();
                 }),
 

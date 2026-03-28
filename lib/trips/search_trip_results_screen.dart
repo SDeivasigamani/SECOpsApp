@@ -12,7 +12,7 @@ class SearchTripResultsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<SearchTripController>(
       builder: (controller) {
-        final trips = controller.tripData?.matches ?? [];
+        final trips = controller.filteredTrips;
 
         return Scaffold(
           backgroundColor: Colors.grey.shade100,
@@ -28,16 +28,68 @@ class SearchTripResultsScreen extends StatelessWidget {
               style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ),
           ),
-          body: trips.isEmpty
-              ? const Center(child: Text("No trips found"))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: trips.length,
-                  itemBuilder: (context, index) {
-                    final trip = trips[index];
-                    return _buildTripCard(trip);
-                  },
+          body: Column(
+            children: [
+              // Search Bar & Reset
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: controller.resultsSearchController,
+                        decoration: const InputDecoration(
+                          hintText: "Search by trip ID, Truck ID",
+                          hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                          border: InputBorder.none,
+                          icon: Icon(Icons.search, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: () {
+                        controller.resultsSearchController.clear();
+                      },
+                      child: const Text(
+                        "Reset Search",
+                        style: TextStyle(
+                          color: Colors.green,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+
+              Expanded(
+                child: trips.isEmpty
+                    ? const Center(child: Text("No trips found"))
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        itemCount: trips.length,
+                        itemBuilder: (context, index) {
+                          final trip = trips[index];
+                          return _buildTripCard(trip);
+                        },
+                      ),
+              ),
+            ],
+          ),
         );
       },
     );

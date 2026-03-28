@@ -53,9 +53,9 @@ class _DestinationHandlingScreenState extends State<DestinationHandlingScreen> {
       controller.update();
       
       // Show a toast or snackbar to indicate scan success
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Scanned: $code"), duration: const Duration(milliseconds: 500)),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("Scanned: $code"), duration: const Duration(milliseconds: 500)),
+      // );
     }
   }
 
@@ -386,15 +386,20 @@ class _ScannerBottomSheetState extends State<ScannerBottomSheet> {
     } else {
       controller.updateFilter(result, false);
       DateTime now = DateTime.now();
+      DateTime to = DateTime(
+        now.add(const Duration(days: 1)).year,
+        now.add(const Duration(days: 1)).month,
+        now.add(const Duration(days: 1)).day,
+      );
       DateTime from;
       if (result == "Past 1 month") {
-        from = now.subtract(const Duration(days: 30));
+        from = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 30));
       } else if (result == "Past 2 months") {
-        from = now.subtract(const Duration(days: 60));
+        from = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 60));
       } else {
-        from = now.subtract(const Duration(days: 365));
+        from = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 365));
       }
-      controller.updateDateRange(from, now);
+      controller.updateDateRange(from, to);
     }
   }
 

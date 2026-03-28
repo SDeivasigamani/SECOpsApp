@@ -16,10 +16,33 @@ class SearchTripController extends GetxController {
   );
   DateTime fromDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(const Duration(days: 30));
   
+  final TextEditingController resultsSearchController = TextEditingController();
+  String _resultsSearchText = "";
+  
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   TripResultsModel? tripData;
+
+  @override
+  void onInit() {
+    super.onInit();
+    resultsSearchController.addListener(() {
+      _resultsSearchText = resultsSearchController.text.toLowerCase();
+      update();
+    });
+  }
+
+  List<Matches> get filteredTrips {
+    final trips = tripData?.matches ?? [];
+    if (_resultsSearchText.isEmpty) return trips;
+    return trips.where((trip) {
+      return (trip.id?.toLowerCase().contains(_resultsSearchText) ?? false) ||
+             (trip.truckId?.toLowerCase().contains(_resultsSearchText) ?? false) ||
+             (trip.note?.toLowerCase().contains(_resultsSearchText) ?? false) ||
+             (trip.trackingNumbers?.any((tn) => tn.toLowerCase().contains(_resultsSearchText)) ?? false);
+    }).toList();
+  }
 
   void updateFromDate(DateTime date) {
     fromDate = date;
@@ -84,5 +107,11 @@ class SearchTripController extends GetxController {
 
     _isLoading = false;
     update();
+  }
+
+  @override
+  void onClose() {
+    resultsSearchController.dispose();
+    super.onClose();
   }
 }
