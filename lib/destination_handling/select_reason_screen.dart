@@ -19,6 +19,8 @@ class _SelectReasonScreenState extends State<SelectReasonScreen> {
   @override
   void initState() {
     super.initState();
+    controller.selectedReason = null;
+    controller.filteredReasons = controller.allReasonsList;
     _searchController.addListener(_filterReasons);
     _loadReasons();
   }

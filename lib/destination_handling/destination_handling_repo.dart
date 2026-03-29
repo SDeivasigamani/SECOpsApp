@@ -43,7 +43,7 @@ class DestinationHandlingRepo {
         "from": fromDate,
         "to": toDate
       },
-      "entity": entity ?? sharedPreferences.getString(AppConstants.selectedOperation) ?? "DXB"
+      "entity": (entity != null && entity.isNotEmpty) ? entity : (sharedPreferences.getString(AppConstants.selectedEntity) ?? "DXB")
     };
     
     print("DestinationHandlingRepo updatePackages body: $body");

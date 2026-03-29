@@ -228,6 +228,7 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
           
           if (mounted) {
             setState(() {
+              _totalScannedPackages++;
               _packageController.clear();
             });
           }

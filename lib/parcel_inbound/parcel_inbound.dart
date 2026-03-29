@@ -21,6 +21,15 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
   final TextEditingController _scanController = TextEditingController();
   bool _isValidating = false;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<AuthController>().okCount.value = 0;
+      Get.find<AuthController>().holdCount.value = 0;
+    });
+  }
+
 
   DateTime _toDate = DateTime(
     DateTime.now().add(const Duration(days: 1)).year,
@@ -117,8 +126,12 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
       }
 
       if(Get.find<AuthController>().condition == "OK") {
+        // First fetch details to ensure parcelDetails is populated (for PDF check)
+        await Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate);
+        
         await Get.find<AuthController>().validateParcel(parcelNumber, _toDate, _fromDate, "02.04.002.1.002.999");
-
+        // After successful validation, check for PDF
+        _checkAndShowPDF();
       } else {
         await Get.find<AuthController>().getReasonList();
 
@@ -158,12 +171,12 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
   void _resetSearch() {
     setState(() {
       _scanController.clear();
+      Get.find<AuthController>().okCount.value = 0;
+      Get.find<AuthController>().holdCount.value = 0;
     });
   }
 
-  Future<void> _handleSearchResponse(String barcode) async {
-    await Get.find<AuthController>().searchParcelDetail(barcode, _toDate, _fromDate);
-
+  void _checkAndShowPDF() {
     var detail = Get.find<AuthController>().parcelDetails;
     if (detail != null && detail.items != null && detail.items!.isNotEmpty) {
       var item = detail.items![0];
@@ -180,6 +193,11 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
         }
       }
     }
+  }
+
+  Future<void> _handleSearchResponse(String barcode) async {
+    _scanController.text = barcode;
+    _validateParcels();
   }
 
   Future<void> _scanBarcode() async {
@@ -255,19 +273,7 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
                     const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.search, size: 32, color: Colors.black),
-                      onPressed: () {
-                        String parcelNumber = _scanController.text.trim();
-
-                        // Validate parcel number length
-                        if (parcelNumber.length < 5) {
-                          Get.snackbar("Error", "Parcel number must be more than 5 characters",
-                              backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
-
-                          return;
-                        }
-
-                        _handleSearchResponse(parcelNumber);
-                      },
+                      onPressed: _validateParcels,
                     ),
                   ],
                 ),
@@ -418,6 +424,8 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
                       groupValue: Get.find<AuthController>().condition,
                       onChanged: (value) => setState(() {
                         Get.find<AuthController>().condition = value.toString();
+                        Get.find<AuthController>().okCount.value = 0;
+                        Get.find<AuthController>().holdCount.value = 0;
                         Get.find<AuthController>().update();
                       }),
                     ),
@@ -430,6 +438,8 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
                       groupValue: Get.find<AuthController>().condition,
                       onChanged: (value) => setState(() {
                         Get.find<AuthController>().condition = value.toString();
+                        Get.find<AuthController>().okCount.value = 0;
+                        Get.find<AuthController>().holdCount.value = 0;
                         Get.find<AuthController>().update();
                       }),
                     ),

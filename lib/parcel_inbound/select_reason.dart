@@ -29,6 +29,8 @@ class _SelectReasonScreenState extends State<SelectReasonScreen> {
   @override
   void initState() {
     super.initState();
+    authController.selectedReason = null;
+    authController.filteredReasons = authController.allReasonsList;
     _searchController.addListener(_filterReasons);
   }
 

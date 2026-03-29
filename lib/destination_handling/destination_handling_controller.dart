@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opsapp/destination_handling/destination_handling_repo.dart';
+import '../login/auth_controller.dart';
 import '../utils/api_checker.dart';
 import '../widgets/custom_snackbar.dart';
 import 'destination_handling_model.dart';
@@ -186,6 +187,11 @@ class DestinationHandlingController extends GetxController {
     update();
 
     try {
+      String? entity = Get.find<AuthController>().selectedEntity;
+      String? entityCode = (entity != null && entity.isNotEmpty) 
+          ? (entity.contains(" - ") ? entity.split(" - ")[0] : entity) 
+          : null;
+
       String toDateStr = toDate.toUtc().toIso8601String();
       String fromDateStr = fromDate.toUtc().toIso8601String();
 
@@ -194,6 +200,7 @@ class DestinationHandlingController extends GetxController {
         reasonCode: reasonCode,
         fromDate: fromDateStr,
         toDate: toDateStr,
+        entity: entityCode,
       );
 
       if (response != null && response.statusCode == 200) {

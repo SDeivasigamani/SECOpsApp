@@ -40,7 +40,7 @@ class _DestinationHandlingResultsScreenState extends State<DestinationHandlingRe
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-            onPressed: () => Get.back(),
+            onPressed: () => Navigator.pop(context),
           ),
           title: const Text(
             'Results',
@@ -186,12 +186,12 @@ class _DestinationHandlingResultsScreenState extends State<DestinationHandlingRe
                     if (controller.hasSelection) {
                       _showGeneralUpdatesDialog(context);
                     } else {
-                      Get.snackbar(
-                        "Error",
-                        "Please select at least one item",
-                        backgroundColor: Colors.red,
-                        colorText: Colors.white,
-                        snackPosition: SnackPosition.TOP,
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Please select at least one item"),
+                          backgroundColor: Colors.red,
+                          duration: Duration(seconds: 2),
+                        ),
                       );
                     }
                   },

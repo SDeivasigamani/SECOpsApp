@@ -251,8 +251,16 @@ class ApiClient extends GetxService {
       print('AuthController not found: $e');
     }
     
-    // Show error message
-    Get.snackbar("Error", 'Session expired. Please login again.', backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+    // Show error message safely
+    Future.delayed(Duration.zero, () {
+      Get.snackbar(
+        "Error", 
+        'Session expired. Please login again.', 
+        backgroundColor: Colors.red, 
+        colorText: Colors.white, 
+        snackPosition: SnackPosition.TOP,
+      );
+    });
     
     // Navigate to login screen
     Get.offAllNamed('/login');
