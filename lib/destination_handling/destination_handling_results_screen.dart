@@ -414,9 +414,8 @@ class _DestinationHandlingResultsScreenState extends State<DestinationHandlingRe
   }
 
   Color _getStatusColor(String? status) {
-    if (status == 'Received') return const Color(0xFF2196F3); // Blue
-    if (status == 'Cleared') return const Color(0xFF4DD0E1); // Cyan
-    return Colors.grey;
+    if (status?.toLowerCase() == 'on-hold') return Colors.red;
+    return const Color(0xFF2196F3);
   }
 }
 

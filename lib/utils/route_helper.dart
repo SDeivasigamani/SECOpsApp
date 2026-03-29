@@ -12,6 +12,7 @@ import '../destination_handling/destination_handling_screen.dart';
 import '../trips/trips_screen.dart';
 import '../trips/generate_trip_screen.dart';
 import '../trips/search_trip_screen.dart';
+import '../trips/generate_trip_success_screen.dart';
 
 class RouteHelper {
   static const String initial = '/';
@@ -31,6 +32,7 @@ class RouteHelper {
   static const String trips = '/trips';
   static const String generate_trip = '/generate_trip';
   static const String search_trip = '/search_trip';
+  static const String generate_trip_success = '/generate_trip_success';
 
   static String getInitialRoute() => initial;
   static String getSplashRoute() => splash;
@@ -47,6 +49,7 @@ class RouteHelper {
   static String getTripsScreen() => trips;
   static String getGenerateTripScreen() => generate_trip;
   static String getSearchTripScreen() => search_trip;
+  static String getGenerateTripSuccessScreen() => generate_trip_success;
 
   static List<GetPage> routes = [
     GetPage(name: splash, page: () => const SplashScreen()),
@@ -62,5 +65,6 @@ class RouteHelper {
     GetPage(name: trips, page: () => const TripsScreen()),
     GetPage(name: generate_trip, page: () => const GenerateTripScreen()),
     GetPage(name: search_trip, page: () => const SearchTripScreen()),
+    GetPage(name: generate_trip_success, page: () => const GenerateTripSuccessScreen()),
   ];
 }

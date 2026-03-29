@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../destination_handling/destination_handling_repo.dart';
 import '../login/auth_controller.dart';
+import '../splash/controller/splash_controller.dart';
 import '../trips/generate_trip_controller.dart';
 import '../trips/generate_trip_repo.dart';
 import '../utils/images.dart';
@@ -273,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(selectedOperation, style: const TextStyle(fontSize: 16)),
-                          const Text("SEC SDEV (v4.0)", style: TextStyle(fontSize: 12)),
+                          Text("SEC SDEV (v${Get.find<SplashController>().appVersion})", style: const TextStyle(fontSize: 12)),
                         ],
                       )
                     ],

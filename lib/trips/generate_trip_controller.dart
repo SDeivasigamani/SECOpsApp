@@ -5,6 +5,8 @@ import '../utils/api_checker.dart';
 import '../destination_handling/destination_handling_model.dart';
 import 'generate_trip_results_screen.dart';
 import 'generate_trip_confirm_screen.dart';
+import 'package:opsapp/utils/route_helper.dart';
+
 
 class GenerateTripController extends GetxController {
   final GenerateTripRepo generateTripRepo;
@@ -194,16 +196,28 @@ class GenerateTripController extends GetxController {
 
       if (response != null && response.statusCode == 200) {
         print("Trip generated successfully: ${response.body}");
-        _selectedItems.clear();
-        searchResults.clear();
-        searchController.clear();
         update();
-        // Go back to trips screen (pop twice - confirm screen and results screen)
-        Get.back();
-        Get.back();
         
-        // Show success message after navigation to avoid snackbar disposition error
-        Get.snackbar("Success", "Trip generated successfully", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        String tripId = "";
+        try {
+          if (response.body is Map) {
+            tripId = response.body['tripId'] ?? "";
+          } else if (response.body is List && response.body.isNotEmpty) {
+            // Some APIs return a list of messages where one might be the ID
+            tripId = response.body[0]['message']?.toString().split(":").last.trim() ?? "";
+          }
+        } catch (e) {
+          print("Error extracting tripId: $e");
+        }
+
+        // If tripId is empty, use a fallback from response.body or status
+        if (tripId.isEmpty) tripId = "TRP Generated";
+
+        // Navigate to success screen instead of popping back
+        Get.offNamed(RouteHelper.getGenerateTripSuccessScreen(), arguments: tripId);
+        
+        // Show success message
+        Get.snackbar("Success", "Trip generated successfully: $tripId", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       } else {
         String errorMessage = ApiChecker.getErrorMsg(response?.body);
         Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);

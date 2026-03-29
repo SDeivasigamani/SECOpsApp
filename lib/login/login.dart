@@ -14,6 +14,7 @@ import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/loading_indicator.dart';
 import 'auth_controller.dart';
+import '../splash/controller/splash_controller.dart';
 
 
 class SignInScreen extends StatefulWidget {
@@ -156,19 +157,28 @@ class _SignInScreenState extends State<SignInScreen> {
                   }
                 },
                 buttonText: 'Login'),
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Text(
+                "© 2025 Shipa Ecommerce. All rights reserved.",
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Text(
+                "Version ${Get.find<SplashController>().appVersion}",
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ),
             const SizedBox(
               height: 160,
             ),
 
             // Footer
-            const Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: Text(
-                "© 2025 Shipa Ecommerce. All rights reserved. Version 1.0.0",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-            ),
+
           ],
         ),
       ),

@@ -19,10 +19,10 @@ class CreateBoxScreen extends StatefulWidget {
 
 class _CreateBoxScreenState extends State<CreateBoxScreen> {
   final TextEditingController refController = TextEditingController();
-  final TextEditingController weightController = TextEditingController();
-  final TextEditingController lengthController = TextEditingController();
-  final TextEditingController widthController = TextEditingController();
-  final TextEditingController heightController = TextEditingController();
+  final TextEditingController weightController = TextEditingController(text: "0");
+  final TextEditingController lengthController = TextEditingController(text: "0");
+  final TextEditingController widthController = TextEditingController(text: "0");
+  final TextEditingController heightController = TextEditingController(text: "0");
 
   String? selectedEntity;
   Matches? selectedConsignee;
@@ -225,10 +225,10 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
 
             const SizedBox(height: 15),
 
-            // Shipper select
-            _shipperBox(),
+            // Shipper select (Hidden as per request)
+            // _shipperBox(),
 
-            const SizedBox(height: 15),
+            // const SizedBox(height: 15),
 
             // Sortation Rule
             _sortationRuleBox(),
@@ -323,8 +323,8 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
 
   Widget _consigneeBox() {
     return _addressSelectBox(
-      label: "Consignee",
-      hint: "Select Consignee",
+      label: "Destination",
+      hint: "Select Destination",
       selected: selectedConsignee,
       onTap: () async {
         final result = await Navigator.push(
@@ -537,11 +537,11 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
       
       final units = _getUnits();
 
-      // Parse numeric values
-      double weight = double.tryParse(weightController.text) ?? 1;
-      double length = double.tryParse(lengthController.text) ?? 20;
-      double width = double.tryParse(widthController.text) ?? 30;
-      double height = double.tryParse(heightController.text) ?? 40;
+      // Parse numeric values with default 0
+      double weight = double.tryParse(weightController.text) ?? 0;
+      double length = double.tryParse(lengthController.text) ?? 0;
+      double width = double.tryParse(widthController.text) ?? 0;
+      double height = double.tryParse(heightController.text) ?? 0;
 
       // Function to map Matches to Map<String, dynamic>
       Map<String, dynamic> mapAddress(Matches? match, String defaultName, {bool isShipper = false}) {

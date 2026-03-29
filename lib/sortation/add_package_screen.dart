@@ -241,18 +241,43 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
           );
         } else {
           String errorMessage = "Failed to add package: ${addResponse.statusText}";
+          bool alreadyAdded = false;
           if (addResponse.body != null) {
             try {
+              String bodyStr = "";
               if (addResponse.body is List && addResponse.body.isNotEmpty) {
                 errorMessage = addResponse.body[0]['message'] ?? errorMessage;
               } else if (addResponse.body is Map) {
                 errorMessage = addResponse.body['message'] ?? errorMessage;
               }
+              
+              // Check if error is "already added"
+              if (errorMessage.toLowerCase().contains("already added") || 
+                  errorMessage.toLowerCase().contains("already exists")) {
+                alreadyAdded = true;
+              }
             } catch (e) {
               print("Error parsing addResponse body: $e");
             }
           }
-          Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          
+          if (alreadyAdded) {
+            // If already added, we treat it as "done" for this scan
+            if (mounted) {
+              setState(() {
+                _packageController.clear();
+              });
+            }
+            Get.snackbar(
+              "Info",
+              "Package was already added to this container.",
+              backgroundColor: Colors.blue,
+              colorText: Colors.white,
+              snackPosition: SnackPosition.TOP,
+            );
+          } else {
+            Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          }
         }
       } else {
         String errorMessage = "Package not found: ${searchResponse.statusText}";

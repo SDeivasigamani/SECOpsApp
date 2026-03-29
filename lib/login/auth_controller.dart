@@ -696,6 +696,8 @@ class AuthController extends GetxController implements GetxService {
 
     if (response != null && response.statusCode == 200) {
       parcelDetails = ParcelDetailModel.fromJson(response.body);
+
+      await Get.find<AuthController>().validateParcel(parcelNumber, toDate, fromDate, "02.04.002.1.002.999");
     } else if (response != null && response.statusCode == 401) {
       clearSharedData();
       Get.snackbar("Error", "Your session is timed out. Please login again.",

@@ -2,6 +2,7 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../login/model/app_version_model.dart';
 import '../../login/model/get_publickey_model.dart';
 import '../repository/splash_repo.dart';
@@ -11,12 +12,20 @@ class SplashController extends GetxController implements GetxService {
   final SplashRepo splashRepo;
   SplashController({required this.splashRepo});
 
+  @override
+  void onInit() {
+    super.onInit();
+    getPackageInfo();
+  }
+
   bool _firstTimeConnectionCheck = true;
   bool _hasConnection = true;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   VersionCheckApiModel? appVersionModel;
+  String appVersion = '';
+  String buildNumber = '';
 
   // ConfigModel _configModel = ConfigModel();
   // ConfigModel get configModel => _configModel;
@@ -37,6 +46,13 @@ class SplashController extends GetxController implements GetxService {
   //       ? ConfigModel.fromJson(box.read("config_data"))
   //       : null;
   // }
+
+  Future<void> getPackageInfo() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    appVersion = packageInfo.version;
+    buildNumber = packageInfo.buildNumber;
+    update();
+  }
 
   Future<bool?> getAppVersion() async {
 
