@@ -109,6 +109,57 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
     }
   }
 
+  Future<bool> _showHoldAlertDialog() async {
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16.0),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(4.0), topRight: Radius.circular(4.0)),
+                ),
+                child: const Text(
+                  "Hold Alert !",
+                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Text(
+                  "The parcel is on-hold: On-hold,\nPlease receive the parcel separately.",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0, bottom: 8.0, top: 8.0),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: const Text(
+                      "CONTINUE",
+                      style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ) ?? false;
+  }
+
   Future<void> _validateParcels() async {
     if (_isValidating) return;
 
@@ -123,6 +174,16 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
       if (parcelNumber.length < 5) {
         Get.snackbar("Error", "Tracking Numbers must be between 5 and 50 characters long.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
         return;
+      }
+
+      bool? isHold = await Get.find<AuthController>().checkHoldStatus(parcelNumber, _toDate, _fromDate);
+      if (isHold == null) {
+        return;
+      }
+
+      if (isHold) {
+        bool continueProceed = await _showHoldAlertDialog();
+        if (!continueProceed) return;
       }
 
       if(Get.find<AuthController>().condition == "OK") {
@@ -268,11 +329,6 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.search, size: 32, color: Colors.black),
-                      onPressed: _validateParcels,
                     ),
                   ],
                 ),

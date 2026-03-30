@@ -684,6 +684,43 @@ class AuthController extends GetxController implements GetxService {
     }
   }
 
+  Future<bool?> checkHoldStatus(String parcelNumber, DateTime toDate, DateTime fromDate) async {
+    _hideKeyboard();
+    _isLoading = true;
+    update();
+
+    bool? isHold;
+    final response = await authRepo.getParcelDetail(parcelNumber, toDate, fromDate);
+
+    if (response != null && response.statusCode == 200) {
+      ParcelDetailModel localDetails = ParcelDetailModel.fromJson(response.body);
+      if (localDetails.items != null && localDetails.items!.isNotEmpty) {
+        isHold = localDetails.items![0].holdStatus == true;
+      } else {
+        isHold = false;
+      }
+    } else if (response != null && response.statusCode == 401) {
+      clearSharedData();
+      Get.snackbar("Error", "Your session is timed out. Please login again.",
+          backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      Get.offAllNamed(RouteHelper.getSignInRoute('splash'));
+      isHold = null;
+    } else {
+      try {
+        var firstItem = response?.body[0];
+        String message = firstItem["message"];
+        Get.snackbar("Error", message, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      } catch (error) {
+        Get.snackbar("Error", "Error fetching tracking details.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      }
+      isHold = null;
+    }
+
+    _isLoading = false;
+    update();
+    return isHold;
+  }
+
   Future<void> searchParcelDetail(
       String parcelNumber, DateTime toDate, DateTime fromDate) async {
     _hideKeyboard();
