@@ -168,13 +168,23 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
               print("Error parsing addResponse body: $e");
             }
           }
-          Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
     } catch (e) {
       print("Error fetching container package count: $e");
       if (mounted) {
-        Get.snackbar("Error", "Failed to refresh package count: $e", backgroundColor: Colors.red);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to refresh package count: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -184,18 +194,33 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
     
     // Validate tracking number is not empty
     if (trackingNumber.isEmpty) {
-      Get.snackbar("Error", "Please enter a tracking number", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter a tracking number"),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
     
     // Validate tracking number length (between 11 and 50 characters)
     if (trackingNumber.length < 11) {
-      Get.snackbar("Error", "Tracking number must be at least 11 characters long", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Tracking number must be at least 11 characters long"),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
     
     if (trackingNumber.length > 50) {
-      Get.snackbar("Error", "Tracking number must not exceed 50 characters", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Tracking number must not exceed 50 characters"),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
@@ -232,12 +257,11 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
               _packageController.clear();
             });
           }
-          Get.snackbar(
-            "Success",
-            "Package added successfully. Total packages: $_totalScannedPackages",
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.TOP,
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Package added successfully. Total packages: $_totalScannedPackages"),
+              backgroundColor: Colors.green,
+            ),
           );
         } else {
           String errorMessage = "Failed to add package: ${addResponse.statusText}";
@@ -268,15 +292,19 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
                 _packageController.clear();
               });
             }
-            Get.snackbar(
-              "Info",
-              "Package was already added to this container.",
-              backgroundColor: Colors.blue,
-              colorText: Colors.white,
-              snackPosition: SnackPosition.TOP,
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Package was already added to this container."),
+                backgroundColor: Colors.blue,
+              ),
             );
           } else {
-            Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: Colors.red,
+              ),
+            );
           }
         }
       } else {
@@ -292,11 +320,21 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
             print("Error parsing searchResponse body: $e");
           }
         }
-        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       print(e);
-      Get.snackbar("Error", "An error occurred: $e", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("An error occurred: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -313,7 +351,7 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Get.back(),
         ),
         title: const Text(
           "Add Package",
@@ -538,13 +576,9 @@ class _AddPackageScreenState extends State<AddPackageScreen> {
                     ),
                     onPressed: () async {
                       // Navigate to Package List screen
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => PackageListScreen(
+                      await Get.to(() => PackageListScreen(
                             containerNumber: widget.containerTrackingNumber,
-                          ),
-                        ),
-                      );
+                          ));
                       
                       // Refresh the package count when returning from PackageListScreen
                       _fetchContainerPackageCount();

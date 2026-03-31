@@ -212,22 +212,20 @@ class _GenerateTripConfirmScreenState extends State<GenerateTripConfirmScreen> {
                         ? null
                         : () {
                             if (_estimatedDeliveryTime == null) {
-                              Get.snackbar(
-                                "Error",
-                                "Please select estimated delivery time",
-                                backgroundColor: Colors.red,
-                                colorText: Colors.white,
-                                snackPosition: SnackPosition.TOP,
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Please select estimated delivery time"),
+                                  backgroundColor: Colors.red,
+                                ),
                               );
                               return;
                             }
                             if (_truckIdController.text.trim().isEmpty) {
-                              Get.snackbar(
-                                "Error",
-                                "Please enter truck ID",
-                                backgroundColor: Colors.red,
-                                colorText: Colors.white,
-                                snackPosition: SnackPosition.TOP,
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Please enter truck ID"),
+                                  backgroundColor: Colors.red,
+                                ),
                               );
                               return;
                             }
@@ -236,6 +234,7 @@ class _GenerateTripConfirmScreenState extends State<GenerateTripConfirmScreen> {
                               estimatedDeliveryTime: _estimatedDeliveryTime!,
                               truckId: _truckIdController.text.trim(),
                               note: _notesController.text.trim(),
+                              context: context,
                             );
                           },
                     style: ElevatedButton.styleFrom(

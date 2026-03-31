@@ -176,7 +176,7 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
         return;
       }
 
-      bool? isHold = await Get.find<AuthController>().checkHoldStatus(parcelNumber, _toDate, _fromDate);
+      bool? isHold = await Get.find<AuthController>().checkHoldStatus(parcelNumber, _toDate, _fromDate, context);
       if (isHold == null) {
         return;
       }
@@ -188,7 +188,7 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
 
       if(Get.find<AuthController>().condition == "OK") {
         // First fetch details to ensure parcelDetails is populated (for PDF check)
-        await Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate);
+        await Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate, context);
         
         // After successful validation, check for PDF
         _checkAndShowPDF();

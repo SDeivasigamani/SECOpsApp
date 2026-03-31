@@ -148,13 +148,9 @@ class _UpdateBoxScreenState extends State<UpdateBoxScreen> {
   }
 
   void _navigateToAddParcels() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => AddPackageScreen(
+    Get.to(() => AddPackageScreen(
           containerTrackingNumber: widget.container.number ?? '',
-        ),
-      ),
-    );
+        ));
   }
 
   @override

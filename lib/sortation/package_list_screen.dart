@@ -68,11 +68,21 @@ class _PackageListScreenState extends State<PackageListScreen> {
             print("Error parsing addResponse body: $e");
           }
         }
-        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       print(e);
-      Get.snackbar("Error", "An error occurred: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("An error occurred: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -125,7 +135,7 @@ class _PackageListScreenState extends State<PackageListScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Get.back(),
         ),
         title: Text(
           "Box #${widget.containerNumber}",
@@ -354,7 +364,12 @@ class _PackageListScreenState extends State<PackageListScreen> {
                                       });
 
                                       // Show success snackbar using Get.snackbar
-                                      Get.snackbar("Success", 'Package $trackingNumber deleted successfully', backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Package $trackingNumber deleted successfully'),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
                                     } else {
                                       // API call failed
                                       setState(() {
@@ -374,7 +389,12 @@ class _PackageListScreenState extends State<PackageListScreen> {
                                             print("Error parsing addResponse body: $e");
                                           }
                                         }
-                                        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(errorMessage),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
                                       }
                                     }
                                   } catch (e) {
@@ -383,12 +403,11 @@ class _PackageListScreenState extends State<PackageListScreen> {
                                     });
                                     
                                     print("Error deleting package: $e");
-                                    Get.snackbar(
-                                      "Error",
-                                      "An error occurred while deleting: $e",
-                                      backgroundColor: Colors.red,
-                                      colorText: Colors.white,
-                                      snackPosition: SnackPosition.TOP,
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text("An error occurred while deleting: $e"),
+                                        backgroundColor: Colors.red,
+                                      ),
                                     );
                                   }
                                 },

@@ -54,7 +54,7 @@ class SearchTripController extends GetxController {
     update();
   }
 
-  Future<void> searchTrip(String trackingNumber) async {
+  Future<void> searchTrip(String trackingNumber, BuildContext context) async {
     _isLoading = true;
     update();
 
@@ -97,12 +97,21 @@ class SearchTripController extends GetxController {
             print("Error parsing searchResponse body: $e");
           }
         }
-        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
-
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       print("Search trip error: $e");
-      Get.snackbar("Error", "An error occurred during search", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("An error occurred during search"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
 
     _isLoading = false;

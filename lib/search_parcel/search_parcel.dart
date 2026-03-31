@@ -113,7 +113,7 @@ class _SearchParcelScreenState extends State<SearchParcelScreen> {
     String parcelNumber = _controller.text.trim();
     if (parcelNumber.isNotEmpty) {
       // Use the date filter variables instead of hardcoded dates
-      Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate);
+      Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate, context);
     }
   }
 
@@ -201,7 +201,7 @@ class _SearchParcelScreenState extends State<SearchParcelScreen> {
                         String parcelNumber = _controller.text.trim();
                         if (parcelNumber.isNotEmpty) {
                           // Use the date filter variables
-                          Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate);
+                          Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate, context);
                         }
                       },
                     ),
