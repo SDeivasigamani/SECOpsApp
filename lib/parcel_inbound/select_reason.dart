@@ -48,7 +48,7 @@ class _SelectReasonScreenState extends State<SelectReasonScreen> {
 
   void _onConfirm() {
     if (authController.selectedReason != null) {
-      Get.find<AuthController>().validateParcel(widget.parcelNumber, widget.toDate, widget.fromDate, "02.04.002.1.002.999");
+      Get.find<AuthController>().validateParcel(widget.parcelNumber, widget.toDate, widget.fromDate, "02.04.002.1.002.999", context);
       Get.back();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -298,13 +298,9 @@ class _ParcelScannerPageState extends State<ParcelScannerPage> {
                 onPressed: () {
                   Navigator.pop(context);
                   // Navigate to Add Package screen
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => AddPackageScreen(
+                  Get.to(() => AddPackageScreen(
                         containerTrackingNumber: container.id ?? '',
-                      ),
-                    ),
-                  );
+                      ));
                 },
                 child: const Text(
                   "Confirm and Scan Packages",

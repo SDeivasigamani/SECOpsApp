@@ -188,7 +188,7 @@ class _GenerateTripResultsScreenState extends State<GenerateTripResultsScreen> {
                   onPressed: controller.isLoading
                       ? null
                       : () {
-                          controller.generateTrip();
+                          controller.generateTrip(context);
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,

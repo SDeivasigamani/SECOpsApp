@@ -246,7 +246,7 @@ class _GenerateTripScreenState extends State<GenerateTripScreen> {
                           onPressed: controller.isLoading
                               ? null
                               : () {
-                                  controller.search(controller.searchController.text);
+                                  controller.search(controller.searchController.text, context);
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
@@ -305,15 +305,23 @@ class _GenerateTripScreenState extends State<GenerateTripScreen> {
     } else {
       controller.updateFilter(result, false);
       DateTime now = DateTime.now();
+      DateTime todayMidnight = DateTime(now.year, now.month, now.day);
+      DateTime tomorrowMidnight = todayMidnight.add(const Duration(days: 1));
+      
       DateTime from;
       if (result == "Past 1 month") {
-        from = now.subtract(const Duration(days: 30));
+        from = todayMidnight.subtract(const Duration(days: 30));
       } else if (result == "Past 2 months") {
-        from = now.subtract(const Duration(days: 60));
+        from = todayMidnight.subtract(const Duration(days: 60));
       } else {
-        from = now.subtract(const Duration(days: 365));
+        from = todayMidnight.subtract(const Duration(days: 365));
       }
-      controller.updateDateRange(from, now);
+      controller.updateDateRange(from, tomorrowMidnight);
+      
+      // Auto-trigger search after filter selection (optional but matches AddPackageScreen)
+      if (controller.searchController.text.trim().isNotEmpty) {
+        controller.search(controller.searchController.text.trim(), context);
+      }
     }
   }
 
@@ -330,6 +338,11 @@ class _GenerateTripScreenState extends State<GenerateTripScreen> {
         controller.updateDateRange(picked, controller.toDate);
       } else {
         controller.updateDateRange(controller.fromDate, picked);
+      }
+      
+      // Auto-trigger search after date pick (matches AddPackageScreen)
+      if (controller.searchController.text.trim().isNotEmpty) {
+        controller.search(controller.searchController.text.trim(), context);
       }
     }
   }

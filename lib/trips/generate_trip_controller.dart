@@ -72,9 +72,14 @@ class GenerateTripController extends GetxController {
     return _selectedItems[trackingNumber ?? ''] ?? false;
   }
 
-  Future<void> search(String searchText) async {
+  Future<void> search(String searchText, BuildContext context) async {
     if (searchText.trim().isEmpty) {
-      Get.snackbar("Error", "Please enter search text", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter search text"),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
@@ -132,18 +137,28 @@ class GenerateTripController extends GetxController {
             print("Error parsing searchResponse body: $e");
           }
         }
-        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       print("Search error: $e");
-      Get.snackbar("Error", "An error occurred during search", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("An error occurred during search"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
 
     _isLoading = false;
     update();
   }
 
-  Future<void> generateTrip() async {
+  Future<void> generateTrip(BuildContext context) async {
     List<String> selectedBoxNumbers = searchResults
         .where((item) => _selectedItems[item.trackingNumber] == true)
         .map((item) => item.containerTrackingNumber ?? item.trackingNumber ?? '')
@@ -151,7 +166,12 @@ class GenerateTripController extends GetxController {
         .toList();
 
     if (selectedBoxNumbers.isEmpty) {
-      Get.snackbar("Error", "Please select at least one box", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please select at least one box"),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
@@ -164,6 +184,7 @@ class GenerateTripController extends GetxController {
     required String truckId,
     String? note,
     String? entity,
+    required BuildContext context,
   }) async {
     List<String> selectedBoxNumbers = searchResults
         .where((item) => _selectedItems[item.trackingNumber] == true)
@@ -172,7 +193,12 @@ class GenerateTripController extends GetxController {
         .toList();
 
     if (selectedBoxNumbers.isEmpty) {
-      Get.snackbar("Error", "Please select at least one box", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please select at least one box"),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
@@ -217,14 +243,29 @@ class GenerateTripController extends GetxController {
         Get.offNamed(RouteHelper.getGenerateTripSuccessScreen(), arguments: tripId);
         
         // Show success message
-        Get.snackbar("Success", "Trip generated successfully: $tripId", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Trip generated successfully: $tripId"),
+            backgroundColor: Colors.green,
+          ),
+        );
       } else {
         String errorMessage = ApiChecker.getErrorMsg(response?.body);
-        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } catch (e) {
       print("Generate trip error: $e");
-      Get.snackbar("Error", "An error occurred while generating trip", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("An error occurred while generating trip"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
 
     _isLoading = false;

@@ -180,7 +180,7 @@ class _SearchTripScreenState extends State<SearchTripScreen> {
                         ? null
                         : () {
                             if (TapThrottle.canTap()) {
-                              controller.searchTrip(_searchController.text.trim());
+                              controller.searchTrip(_searchController.text.trim(), context);
                             }
                           },
                     style: ElevatedButton.styleFrom(

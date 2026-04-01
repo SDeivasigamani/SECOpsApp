@@ -192,11 +192,15 @@ class AuthController extends GetxController implements GetxService {
 
   Future<void> login(context) async {
     if (signInEmailController.text.trim().isEmpty) {
-      Get.snackbar("Error", "Please enter username.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter username."), backgroundColor: Colors.red),
+      );
       return;
     }
     if (signInPasswordController.text.trim().isEmpty) {
-      Get.snackbar("Error", "Please enter password.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter password."), backgroundColor: Colors.red),
+      );
       return;
     }
     _hideKeyboard();
@@ -211,7 +215,9 @@ class AuthController extends GetxController implements GetxService {
       );
 
       if (encryptResponse == null || encryptResponse.statusCode != 200) {
-        Get.snackbar("Error", "You have entered an invalid username or password.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("You have entered an invalid username or password."), backgroundColor: Colors.red),
+        );
         _isLoading = false;
         update();
         return;
@@ -222,7 +228,9 @@ class AuthController extends GetxController implements GetxService {
       String encryptedPassword = encryptResponse.body['password'] ?? '';
 
       if (encryptedUsername.isEmpty || encryptedPassword.isEmpty) {
-        Get.snackbar("Error", "Encryption failed. Please try again.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Encryption failed. Please try again."), backgroundColor: Colors.red),
+        );
         _isLoading = false;
         update();
         return;
@@ -275,11 +283,15 @@ class AuthController extends GetxController implements GetxService {
 
         Get.offAllNamed(RouteHelper.getUsersHome());
       } else {
-        Get.snackbar("Error", response?.bodyString ?? "Login failed", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response?.bodyString ?? "Login failed"), backgroundColor: Colors.red),
+        );
       }
     } catch (e) {
       print("Login error: $e");
-      Get.snackbar("Error", "An error occurred during login: $e", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred during login: $e"), backgroundColor: Colors.red),
+      );
     }
 
     _isLoading = false;
@@ -684,7 +696,7 @@ class AuthController extends GetxController implements GetxService {
     }
   }
 
-  Future<bool?> checkHoldStatus(String parcelNumber, DateTime toDate, DateTime fromDate) async {
+  Future<bool?> checkHoldStatus(String parcelNumber, DateTime toDate, DateTime fromDate, BuildContext context) async {
     _hideKeyboard();
     _isLoading = true;
     update();
@@ -701,17 +713,22 @@ class AuthController extends GetxController implements GetxService {
       }
     } else if (response != null && response.statusCode == 401) {
       clearSharedData();
-      Get.snackbar("Error", "Your session is timed out. Please login again.",
-          backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Your session is timed out. Please login again."), backgroundColor: Colors.red),
+      );
       Get.offAllNamed(RouteHelper.getSignInRoute('splash'));
       isHold = null;
     } else {
       try {
         var firstItem = response?.body[0];
         String message = firstItem["message"];
-        Get.snackbar("Error", message, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
+        );
       } catch (error) {
-        Get.snackbar("Error", "Error fetching tracking details.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error fetching tracking details."), backgroundColor: Colors.red),
+        );
       }
       isHold = null;
     }
@@ -722,7 +739,7 @@ class AuthController extends GetxController implements GetxService {
   }
 
   Future<void> searchParcelDetail(
-      String parcelNumber, DateTime toDate, DateTime fromDate) async {
+      String parcelNumber, DateTime toDate, DateTime fromDate, BuildContext context) async {
     _hideKeyboard();
     parcelDetails = null;
     _isLoading = true;
@@ -733,20 +750,26 @@ class AuthController extends GetxController implements GetxService {
 
     if (response != null && response.statusCode == 200) {
       parcelDetails = ParcelDetailModel.fromJson(response.body);
+      update();
 
-      await Get.find<AuthController>().validateParcel(parcelNumber, toDate, fromDate, "02.04.002.1.002.999");
+      await Get.find<AuthController>().validateParcel(parcelNumber, toDate, fromDate, "02.04.002.1.002.999", context);
     } else if (response != null && response.statusCode == 401) {
       clearSharedData();
-      Get.snackbar("Error", "Your session is timed out. Please login again.",
-          backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Your session is timed out. Please login again."), backgroundColor: Colors.red),
+      );
       Get.offAllNamed(RouteHelper.getSignInRoute('splash'));
     } else {
       try {
         var firstItem = response?.body[0];
         String message = firstItem["message"];
-        Get.snackbar("Error", message, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
+        );
       } catch (error) {
-        Get.snackbar("Error", "Failed to parse response.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to parse response."), backgroundColor: Colors.red),
+        );
       }
     }
 
@@ -755,9 +778,8 @@ class AuthController extends GetxController implements GetxService {
   }
 
   Future<void> validateParcel(String parcelNumber, DateTime toDate,
-      DateTime fromDate, String reasonCode) async {
+      DateTime fromDate, String reasonCode, BuildContext context) async {
     _hideKeyboard();
-    parcelDetails = null;
     _isLoading = true;
     update();
 
@@ -771,7 +793,9 @@ class AuthController extends GetxController implements GetxService {
 
       // 👇 Access the message
       String message = response.body['message'];
-      Get.snackbar("Success", message, backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.green),
+      );
 
       if (Get.find<AuthController>().condition == "OK") {
         okCount.value++;
@@ -782,16 +806,21 @@ class AuthController extends GetxController implements GetxService {
       }
     } else if (response != null && response.statusCode == 401) {
       clearSharedData();
-      Get.snackbar("Error", "Your session is timed out. Please login again.",
-          backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Your session is timed out. Please login again."), backgroundColor: Colors.red),
+      );
       Get.offAllNamed(RouteHelper.getSignInRoute('splash'));
     } else {
       try {
         var firstItem = response?.body[0];
         String message = firstItem["message"];
-        Get.snackbar("Error", message, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
+        );
       } catch (error) {
-        Get.snackbar("Error", "Failed to parse response.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to parse response."), backgroundColor: Colors.red),
+        );
       }
     }
 
