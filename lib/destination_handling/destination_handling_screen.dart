@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:flutter_beep/flutter_beep.dart';
 import 'destination_handling_controller.dart';
 import 'destination_handling_search_screen.dart';
 
@@ -36,6 +37,7 @@ class _DestinationHandlingScreenState extends State<DestinationHandlingScreen> {
       return; // Debounce same code
     }
 
+    FlutterBeep.beep();
     _lastScannedCode = code;
     _lastScanTime = now;
 

@@ -30,6 +30,16 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    if (Get.isRegistered<AuthController>()) {
+      Get.find<AuthController>().okCount.value = 0;
+      Get.find<AuthController>().holdCount.value = 0;
+    }
+    _scanController.dispose();
+    super.dispose();
+  }
+
 
   DateTime _toDate = DateTime(
     DateTime.now().add(const Duration(days: 1)).year,
@@ -172,11 +182,13 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
 
       // Validate parcel number length
       if (parcelNumber.length < 5) {
-        Get.snackbar("Error", "Tracking Numbers must be between 5 and 50 characters long.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        if (!Get.isSnackbarOpen) {
+          Get.snackbar("Error", "Tracking Numbers must be between 5 and 50 characters long.", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        }
         return;
       }
 
-      bool? isHold = await Get.find<AuthController>().checkHoldStatus(parcelNumber, _toDate, _fromDate, context);
+      bool? isHold = await Get.find<AuthController>().checkHoldStatus(parcelNumber, _toDate, _fromDate, context, showDialogOnError: true);
       if (isHold == null) {
         return;
       }
@@ -188,7 +200,7 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
 
       if(Get.find<AuthController>().condition == "OK") {
         // First fetch details to ensure parcelDetails is populated (for PDF check)
-        await Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate, context);
+        await Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate, context, showDialogOnError: true);
         
         // After successful validation, check for PDF
         _checkAndShowPDF();
@@ -479,8 +491,6 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
                       groupValue: Get.find<AuthController>().condition,
                       onChanged: (value) => setState(() {
                         Get.find<AuthController>().condition = value.toString();
-                        Get.find<AuthController>().okCount.value = 0;
-                        Get.find<AuthController>().holdCount.value = 0;
                         Get.find<AuthController>().update();
                       }),
                     ),
@@ -493,8 +503,6 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
                       groupValue: Get.find<AuthController>().condition,
                       onChanged: (value) => setState(() {
                         Get.find<AuthController>().condition = value.toString();
-                        Get.find<AuthController>().okCount.value = 0;
-                        Get.find<AuthController>().holdCount.value = 0;
                         Get.find<AuthController>().update();
                       }),
                     ),

@@ -20,6 +20,8 @@ import '../utils/route_helper.dart';
 import '../widgets/custom_snackbar.dart';
 import '../widgets/loading_indicator.dart';
 import 'HybridEncryptor.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_beep/flutter_beep.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:convert/convert.dart';
 import '../utils/api_checker.dart';
@@ -696,7 +698,7 @@ class AuthController extends GetxController implements GetxService {
     }
   }
 
-  Future<bool?> checkHoldStatus(String parcelNumber, DateTime toDate, DateTime fromDate, BuildContext context) async {
+  Future<bool?> checkHoldStatus(String parcelNumber, DateTime toDate, DateTime fromDate, BuildContext context, {bool showDialogOnError = false}) async {
     _hideKeyboard();
     _isLoading = true;
     update();
@@ -722,13 +724,21 @@ class AuthController extends GetxController implements GetxService {
       try {
         var firstItem = response?.body[0];
         String message = firstItem["message"];
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: Colors.red),
-        );
+        if (showDialogOnError) {
+          await _showErrorAlertDialog(context, message);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message), backgroundColor: Colors.red),
+          );
+        }
       } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error fetching tracking details."), backgroundColor: Colors.red),
-        );
+        if (showDialogOnError) {
+          await _showErrorAlertDialog(context, "Error fetching tracking details.");
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Error fetching tracking details."), backgroundColor: Colors.red),
+          );
+        }
       }
       isHold = null;
     }
@@ -739,7 +749,7 @@ class AuthController extends GetxController implements GetxService {
   }
 
   Future<void> searchParcelDetail(
-      String parcelNumber, DateTime toDate, DateTime fromDate, BuildContext context) async {
+      String parcelNumber, DateTime toDate, DateTime fromDate, BuildContext context, {bool showDialogOnError = false}) async {
     _hideKeyboard();
     parcelDetails = null;
     _isLoading = true;
@@ -763,18 +773,55 @@ class AuthController extends GetxController implements GetxService {
       try {
         var firstItem = response?.body[0];
         String message = firstItem["message"];
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: Colors.red),
-        );
+        if (showDialogOnError) {
+          await _showErrorAlertDialog(context, message);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message), backgroundColor: Colors.red),
+          );
+        }
       } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to parse response."), backgroundColor: Colors.red),
-        );
+        if (showDialogOnError) {
+          await _showErrorAlertDialog(context, "Failed to parse response.");
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Failed to parse response."), backgroundColor: Colors.red),
+          );
+        }
       }
     }
 
     _isLoading = false;
     update();
+  }
+
+  Future<void> _showErrorAlertDialog(BuildContext context, String message) async {
+    FlutterBeep.beep();
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+          title: const Text(
+            "Alert !",
+            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            message,
+            style: const TextStyle(fontSize: 16),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> validateParcel(String parcelNumber, DateTime toDate,

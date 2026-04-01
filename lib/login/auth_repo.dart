@@ -82,6 +82,8 @@ class AuthRepo {
     String toDateStr = toDate.toUtc().toIso8601String();
     String fromDateStr = fromDate.toUtc().toIso8601String();
 
+    String entityCode = sharedPreferences.getString(AppConstants.selectedEntity) ?? "";
+
     print({
       "trackingNumbers": [parcelNumber],
       "arrSelectedBoxes": null,
@@ -91,7 +93,7 @@ class AuthRepo {
         "from": fromDateStr,
         "to": toDateStr,
       },
-      "entity": "DXB",
+      "entity": entityCode,
     });
 
     final Map<String, dynamic> requestBody = {
@@ -103,7 +105,7 @@ class AuthRepo {
         "from": fromDateStr,
         "to": toDateStr,
       },
-      "entity": "DXB",
+      "entity": entityCode,
     };
 
     return apiClient.postData(AppConstants.parcelUpdateUrl, requestBody);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:flutter_beep/flutter_beep.dart';
 
 class BarcodeScannerScreen extends StatelessWidget {
   final Function(String) onDetect;
@@ -19,6 +20,7 @@ class BarcodeScannerScreen extends StatelessWidget {
           if (barcodes.isNotEmpty) {
             final String? rawValue = barcodes.first.rawValue;
             if (rawValue != null) {
+              FlutterBeep.beep();
               _isScanned = true;
               onDetect(rawValue);
               Navigator.pop(context);

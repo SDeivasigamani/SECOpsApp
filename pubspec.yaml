@@ -74,6 +74,7 @@ dependencies:
   jwt_decode: ^0.3.1
   barcode_widget: ^2.0.4
   printing: ^5.13.0
+  flutter_beep: ^1.0.0
 
 dev_dependencies:
   flutter_test:
