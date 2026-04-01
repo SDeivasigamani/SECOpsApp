@@ -335,18 +335,32 @@ class _ScannerBottomSheetState extends State<ScannerBottomSheet> {
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.6,
                 child: ElevatedButton(
-                  onPressed: controller.searchController.text.trim().isEmpty 
+                  onPressed: controller.searchController.text.trim().isEmpty || controller.isLoading
                       ? null 
                       : () {
-                          // Navigate to search screen
-                          Get.to(() => const DestinationHandlingSearchScreen());
+                          if (controller.searchController.text.length <= 5) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Search text must be more than 5 characters"),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+                          controller.search(controller.searchController.text);
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  child: const Text('Search', style: TextStyle(fontSize: 18, color: Colors.white)),
+                  child: controller.isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text('Search', style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
               ),
             ],
