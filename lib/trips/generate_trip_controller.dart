@@ -188,7 +188,7 @@ class GenerateTripController extends GetxController {
   }) async {
     List<String> selectedBoxNumbers = searchResults
         .where((item) => _selectedItems[item.trackingNumber] == true)
-        .map((item) => item.containerTrackingNumber ?? item.trackingNumber ?? '')
+        .map((item) => item.trackingNumber ?? '')
         .where((tn) => tn.isNotEmpty)
         .toList();
 
@@ -227,16 +227,28 @@ class GenerateTripController extends GetxController {
         String tripId = "";
         try {
           if (response.body is Map) {
-            tripId = response.body['tripId'] ?? "";
+            // Priority: trip_number (from user example), then tripId
+            tripId = (response.body['trip_number'] ?? response.body['tripId'] ?? "").toString();
           } else if (response.body is List && response.body.isNotEmpty) {
-            // Some APIs return a list of messages where one might be the ID
+            // Fallback for list-based responses
             tripId = response.body[0]['message']?.toString().split(":").last.trim() ?? "";
           }
         } catch (e) {
           print("Error extracting tripId: $e");
         }
 
-        // If tripId is empty, use a fallback from response.body or status
+        // If tripId is empty, try to extract from response.bodyString if it contains "{trip_number: ...}"
+        if (tripId.isEmpty && response.bodyString != null && response.bodyString!.contains("trip_number")) {
+           try {
+             // Simple regex to find trip_number value
+             final match = RegExp(r"trip_number:\s*([^},]+)").firstMatch(response.bodyString!);
+             if (match != null) {
+               tripId = match.group(1)?.trim() ?? "";
+             }
+           } catch (_) {}
+        }
+
+        // If still empty, use a placeholder
         if (tripId.isEmpty) tripId = "TRP Generated";
 
         // Navigate to success screen instead of popping back

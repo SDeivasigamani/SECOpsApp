@@ -16,73 +16,83 @@ class GenerateTripSuccessScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Logo
-              Padding(
-                padding: const EdgeInsets.only(top: 80.0),
-                child: Image.asset(
-                  Images.logo,
-                  width: 250,
-                  fit: BoxFit.contain,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Logo
+                Padding(
+                  padding: const EdgeInsets.only(top: 80.0),
+                  child: Image.asset(
+                    Images.logo,
+                    width: 280,
+                    fit: BoxFit.contain,
+                  ),
                 ),
-              ),
 
-              // Trip ID and Barcode
-              Column(
-                children: [
-                  Text(
-                    "Trip ID: $displayTripId",
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF4A90E2), // A soft blue
-                    ),
-                  ),
-                  const SizedBox(height: 60),
-                  BarcodeWidget(
-                    barcode: Barcode.code128(),
-                    data: displayTripId,
-                    width: 300,
-                    height: 150,
-                    drawText: true,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-
-              // Home Button
-              Padding(
-                padding: const EdgeInsets.only(bottom: 60.0),
-                child: SizedBox(
-                  width: 200,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.offAllNamed(RouteHelper.getUsersHome());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4CAF50), // Green from image
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                // Trip ID and Barcode
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Trip ID: $displayTripId",
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF4A90E2), // Matching the blue in the screenshot
+                        letterSpacing: 0.5,
                       ),
                     ),
-                    child: const Text(
-                      "Home",
-                      style: TextStyle(
+                    const SizedBox(height: 50),
+                    BarcodeWidget(
+                      barcode: Barcode.code128(), // Highly scannable format
+                      data: displayTripId,
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: 160,
+                      drawText: true,
+                      style: const TextStyle(
                         fontSize: 18,
-                        color: Colors.white,
                         fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Home Button
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 50.0),
+                  child: SizedBox(
+                    width: 220,
+                    height: 55,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.offAllNamed(RouteHelper.getUsersHome());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4CAF50), // Premium green
+                        foregroundColor: Colors.white,
+                        elevation: 4,
+                        shadowColor: Colors.black26,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: const Text(
+                        "Home",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
