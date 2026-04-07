@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:flutter_beep/flutter_beep.dart';
 import 'generate_trip_controller.dart';
 
 class GenerateTripScreen extends StatefulWidget {
@@ -35,6 +36,7 @@ class _GenerateTripScreenState extends State<GenerateTripScreen> {
       return;
     }
 
+    FlutterBeep.beep();
     _lastScannedCode = code;
     _lastScanTime = now;
 
@@ -71,7 +73,7 @@ class _GenerateTripScreenState extends State<GenerateTripScreen> {
             left: 16,
             top: MediaQuery.of(context).padding.top + 16,
             child: GestureDetector(
-              onTap: () => Get.back(),
+              onTap: () => Navigator.pop(context),
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: const BoxDecoration(

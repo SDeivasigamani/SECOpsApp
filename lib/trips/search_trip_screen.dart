@@ -57,7 +57,7 @@ class _SearchTripScreenState extends State<SearchTripScreen> {
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-              onPressed: () => Get.back(),
+              onPressed: () => Navigator.pop(context),
             ),
             title: const Text(
               'Search Trip',

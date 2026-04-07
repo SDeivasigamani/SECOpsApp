@@ -523,7 +523,7 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
   Future<void> _createContainer() async {
     // Validate required fields
     if (refController.text.trim().isEmpty) {
-      customSnackBar("Please enter a reference number", isError: true);
+      customSnackBar("Please enter a reference number", context, isError: true);
       return;
     }
 
@@ -627,7 +627,9 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.snackbar("Success", "Container created successfully", backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Container created successfully"), backgroundColor: Colors.green),
+        );
         Navigator.pop(context, refController.text.trim());
       } else {
         String errorMessage = response.statusText ?? "Unknown error";
@@ -642,11 +644,15 @@ class _CreateBoxScreenState extends State<CreateBoxScreen> {
             print("Error parsing addResponse body: $e");
           }
         }
-        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+        );
       }
     } catch (e) {
       print(e);
-      Get.snackbar("Error", "An error occurred: $e", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $e"), backgroundColor: Colors.red),
+      );
     } finally {
       setState(() {
         _isLoading = false;

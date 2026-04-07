@@ -27,6 +27,23 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+subprojects {
+    def applyNamespace = { p ->
+        if (p.hasProperty('android')) {
+            if (p.name == 'flutter_beep') {
+                p.android {
+                    namespace = 'com.gonoter.flutter_beep'
+                }
+            }
+        }
+    }
+    if (project.state.executed) {
+        applyNamespace(project)
+    } else {
+        project.afterEvaluate { p -> applyNamespace(p) }
+    }
+}
+
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }

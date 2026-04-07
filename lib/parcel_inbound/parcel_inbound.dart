@@ -200,7 +200,7 @@ class _ParcelInboundScreenState extends State<ParcelInboundScreen> {
 
       if(Get.find<AuthController>().condition == "OK") {
         // First fetch details to ensure parcelDetails is populated (for PDF check)
-        await Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate, context, showDialogOnError: true);
+        await Get.find<AuthController>().searchParcelDetail(parcelNumber, _toDate, _fromDate, context, showDialogOnError: true, shouldValidate: true);
         
         // After successful validation, check for PDF
         _checkAndShowPDF();

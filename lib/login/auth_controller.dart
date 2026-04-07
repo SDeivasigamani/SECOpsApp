@@ -749,7 +749,7 @@ class AuthController extends GetxController implements GetxService {
   }
 
   Future<void> searchParcelDetail(
-      String parcelNumber, DateTime toDate, DateTime fromDate, BuildContext context, {bool showDialogOnError = false}) async {
+      String parcelNumber, DateTime toDate, DateTime fromDate, BuildContext context,  {bool showDialogOnError = false, bool shouldValidate = false}) async {
     _hideKeyboard();
     parcelDetails = null;
     _isLoading = true;
@@ -762,7 +762,9 @@ class AuthController extends GetxController implements GetxService {
       parcelDetails = ParcelDetailModel.fromJson(response.body);
       update();
 
-      await Get.find<AuthController>().validateParcel(parcelNumber, toDate, fromDate, "02.04.002.1.002.999", context);
+      if (shouldValidate) {
+        await Get.find<AuthController>().validateParcel(parcelNumber, toDate, fromDate, "02.04.002.1.002.999", context);
+      }
     } else if (response != null && response.statusCode == 401) {
       clearSharedData();
       ScaffoldMessenger.of(context).showSnackBar(

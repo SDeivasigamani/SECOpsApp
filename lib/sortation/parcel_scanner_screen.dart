@@ -6,6 +6,7 @@ import 'package:opsapp/sortation/repository/sortation_repo.dart';
 import 'package:opsapp/utils/client_api.dart';
 import 'package:opsapp/sortation/model/container_detail_model.dart';
 import 'package:opsapp/sortation/add_package_screen.dart';
+import 'package:flutter_beep/flutter_beep.dart';
 
 class ParcelScannerPage extends StatefulWidget {
   const ParcelScannerPage({Key? key}) : super(key: key);
@@ -40,6 +41,7 @@ class _ParcelScannerPageState extends State<ParcelScannerPage> {
     if (_read) return;
     final code = capture.barcodes.isNotEmpty ? (capture.barcodes.first.rawValue ?? '') : '';
     if (code.isNotEmpty) {
+      FlutterBeep.beep();
       _read = true;
       // Search container instead of popping
       _searchContainer(code);
@@ -80,11 +82,15 @@ class _ParcelScannerPageState extends State<ParcelScannerPage> {
             print("Error parsing addResponse body: $e");
           }
         }
-        Get.snackbar("Error", errorMessage, backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+        );
       }
     } catch (e) {
       print(e);
-      Get.snackbar("Error", "An error occurred: $e", backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $e"), backgroundColor: Colors.red),
+      );
     }
   }
 
